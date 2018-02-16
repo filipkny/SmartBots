@@ -131,31 +131,47 @@ def main():
             getHitmask(IMAGES['player'][2]),
         )
 
-        movementInfo = showWelcomeAnimation()
+#----------- Visual stuff ends here ------------#
+        player = Player()
+        movementInfo = showWelcomeAnimation(player)
         crashInfo = mainGame(movementInfo)
         showGameOverScreen(crashInfo)
 
+# TODO complete player
+class Player(object):
+    def __init__(self):
+        self.playerIndex = 0 # index of player to blit on screen
+        self.playerIndexGen = cycle([0, 1, 2, 1])
+        self.playerx = int(SCREENWIDTH * 0.2)
+        self.playery = int((SCREENHEIGHT - IMAGES['player'][0].get_height()) / 2)
+        self.playerShmVals = {'val': 0, 'dir': 1}
 
-def showWelcomeAnimation():
+    def updatePlayerIndex(self):
+        self.playerIndex = next(self.playerIndexGen)
+
+    def playerShm(self):
+        """oscillates the value of playerShm['val'] between 8 and -8"""
+        if abs(self.playerShmVals['val']) == 8:
+            self.playerShmVals['dir'] *= -1
+
+        if self.playerShmVals['dir'] == 1:
+            self.playerShmVals['val'] += 1
+        else:
+            self.playerShmVals['val'] -= 1
+
+def showWelcomeAnimation(player):
     """Shows welcome screen animation of flappy bird"""
-    # index of player to blit on screen
-    playerIndex = 0
-    playerIndexGen = cycle([0, 1, 2, 1])
+
     # iterator used to change playerIndex after every 5th iteration
     loopIter = 0
-
-    playerx = int(SCREENWIDTH * 0.2)
-    playery = int((SCREENHEIGHT - IMAGES['player'][0].get_height()) / 2)
 
     messagex = int((SCREENWIDTH - IMAGES['message'].get_width()) / 2)
     messagey = int(SCREENHEIGHT * 0.12)
 
     basex = 0
+
     # amount by which base can maximum shift to left
     baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
-
-    # player shm for up-down motion on welcome screen
-    playerShmVals = {'val': 0, 'dir': 1}
 
     while True:
         for event in pygame.event.get():
@@ -166,22 +182,26 @@ def showWelcomeAnimation():
                 # make first flap sound and return values for mainGame
                 SOUNDS['wing'].play()
                 return {
-                    'playery': playery + playerShmVals['val'],
+                    'playery': player.playery + player.playerShmVals['val'],
                     'basex': basex,
-                    'playerIndexGen': playerIndexGen,
+                    'playerIndexGen': player.playerIndexGen,
                 }
+
+
 
         # adjust playery, playerIndex, basex
         if (loopIter + 1) % 5 == 0:
-            playerIndex = next(playerIndexGen)
-        loopIter = (loopIter + 1) % 30
+           player.updatePlayerIndex()
+        loopIter = (loopIter + 1) % 30  
         basex = -((-basex + 4) % baseShift)
-        playerShm(playerShmVals)
+
+        # Not sure what this does?
+        player.playerShm()
 
         # draw sprites
         SCREEN.blit(IMAGES['background'], (0,0))
-        SCREEN.blit(IMAGES['player'][playerIndex],
-                    (playerx, playery + playerShmVals['val']))
+        SCREEN.blit(IMAGES['player'][player.playerIndex],
+                    (player.playerx, player.playery + player.playerShmVals['val']))
         SCREEN.blit(IMAGES['message'], (messagex, messagey))
         SCREEN.blit(IMAGES['base'], (basex, BASEY))
 
@@ -226,7 +246,7 @@ def mainGame(movementInfo):
     playerFlapAcc =  -9   # players speed on flapping
     playerFlapped = False # True when player flaps
 
-
+    # TODO This is where player API will be connected. Replace event get with player.getPlay()
     while True:
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
@@ -391,7 +411,7 @@ def playerShm(playerShm):
     else:
         playerShm['val'] -= 1
 
-
+# TODO initialize seed here so that we can keep track of it
 def getRandomPipe():
     """returns a randomly generated pipe"""
     # y of gap between upper and lower pipe
