@@ -16,10 +16,14 @@
       <file leaf-file-name="flappy.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/flappy.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="228">
-              <caret line="182" column="0" lean-forward="true" selection-start-line="182" selection-start-column="0" selection-end-line="182" selection-end-column="0" />
+            <state relative-caret-position="-360">
+              <caret line="389" column="31" lean-forward="false" selection-start-line="389" selection-start-column="31" selection-end-line="389" selection-end-column="31" />
               <folding>
                 <element signature="e#0#27#0" expanded="true" />
+                <element signature="e#14028#14420#0" expanded="false" />
+                <element signature="e#14449#14904#0" expanded="false" />
+                <element signature="e#16272#16703#0" expanded="false" />
+                <element signature="e#16732#16975#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -289,7 +293,9 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager />
+    <breakpoint-manager>
+      <option name="time" value="1" />
+    </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
@@ -299,6 +305,10 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#27#0" expanded="true" />
+            <element signature="e#14028#14420#0" expanded="false" />
+            <element signature="e#14449#14904#0" expanded="false" />
+            <element signature="e#16272#16703#0" expanded="false" />
+            <element signature="e#16732#16975#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -326,12 +336,24 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://D:/ANACONDA/Files/Lib/site-packages/matplotlib/backends/backend_tkagg.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="197">
+          <caret line="354" column="8" lean-forward="false" selection-start-line="354" selection-start-column="8" selection-end-line="354" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/flappy.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="182" column="0" lean-forward="true" selection-start-line="182" selection-start-column="0" selection-end-line="182" selection-end-column="0" />
+        <state relative-caret-position="-360">
+          <caret line="389" column="31" lean-forward="false" selection-start-line="389" selection-start-column="31" selection-end-line="389" selection-end-column="31" />
           <folding>
             <element signature="e#0#27#0" expanded="true" />
+            <element signature="e#14028#14420#0" expanded="false" />
+            <element signature="e#14449#14904#0" expanded="false" />
+            <element signature="e#16272#16703#0" expanded="false" />
+            <element signature="e#16732#16975#0" expanded="false" />
           </folding>
         </state>
       </provider>
