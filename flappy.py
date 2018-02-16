@@ -134,7 +134,7 @@ def main():
 #----------- Visual stuff ends here ------------#
         player = Player()
         movementInfo = showWelcomeAnimation(player)
-        crashInfo = mainGame(movementInfo)
+        crashInfo = mainGame(movementInfo, player)
         showGameOverScreen(crashInfo)
 
 # TODO complete player
@@ -145,6 +145,17 @@ class Player(object):
         self.playerx = int(SCREENWIDTH * 0.2)
         self.playery = int((SCREENHEIGHT - IMAGES['player'][0].get_height()) / 2)
         self.playerShmVals = {'val': 0, 'dir': 1}
+        self.basex = 0
+        self.baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
+        self.playerVelY = -9  # player's velocity along Y, default same as playerFlapped
+        self.playerMaxVelY = 10  # max vel along Y, max descend speed
+        self.playerMinVelY = -8  # min vel along Y, max ascend speed
+        self.playerAccY = 1  # players downward accleration
+        self.playerRot = 45  # player's rotation
+        self.playerVelRot = 3  # angular speed
+        self.playerRotThr = 20  # rotation threshold
+        self.playerFlapAcc = -9  # players speed on flapping
+        self.playerFlapped = False  # True when player flaps
 
     def updatePlayerIndex(self):
         self.playerIndex = next(self.playerIndexGen)
@@ -159,6 +170,37 @@ class Player(object):
         else:
             self.playerShmVals['val'] -= 1
 
+    def updateBasex(self):
+        # amount by which base can maximum shift to left
+        self.basex = -((-self.basex + 4) % self.baseShift)
+
+    def liveUpdateBasex(self):
+        self.basex = -((-self.basex + 100) % self.baseShift)
+
+    def rotatePlayer(self):
+        if self.playerRot > -90:
+            self.playerRot -= self.playerVelRot
+
+    def movePlayer(self):
+        # player's movement
+        if self.playerVelY < self.playerMaxVelY and not self.playerFlapped:
+            self.playerVelY += self.playerAccY
+        if self.playerFlapped:
+            self.playerFlapped = False
+            # more rotation to cover the threshold (calculated in visible rotation)
+            self.playerRot = 45
+
+    def updateY(self):
+        self.playery += min(self.playerVelY, BASEY - self.playery - self.playerHeight)
+
+    def checkRotationThreshold(self):
+        # Player rotation has a threshold
+        visibleRot = self.playerRotThr
+        if self.playerRot <= self.playerRotThr:
+            visibleRot = self.playerRot
+
+        return visibleRot
+
 def showWelcomeAnimation(player):
     """Shows welcome screen animation of flappy bird"""
 
@@ -170,9 +212,6 @@ def showWelcomeAnimation(player):
 
     basex = 0
 
-    # amount by which base can maximum shift to left
-    baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
-
     while True:
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
@@ -183,17 +222,16 @@ def showWelcomeAnimation(player):
                 SOUNDS['wing'].play()
                 return {
                     'playery': player.playery + player.playerShmVals['val'],
-                    'basex': basex,
+                    'basex': player.basex,
                     'playerIndexGen': player.playerIndexGen,
                 }
-
 
 
         # adjust playery, playerIndex, basex
         if (loopIter + 1) % 5 == 0:
            player.updatePlayerIndex()
-        loopIter = (loopIter + 1) % 30  
-        basex = -((-basex + 4) % baseShift)
+        loopIter = (loopIter + 1) % 30
+        player.updateBasex()
 
         # Not sure what this does?
         player.playerShm()
@@ -209,13 +247,24 @@ def showWelcomeAnimation(player):
         FPSCLOCK.tick(FPS)
 
 
-def mainGame(movementInfo):
-    score = playerIndex = loopIter = 0
-    playerIndexGen = movementInfo['playerIndexGen']
-    playerx, playery = int(SCREENWIDTH * 0.2), movementInfo['playery']
+def mainGame(movementInfo, player):
+    # score = playerIndex = loopIter = 0
+    ##################
+    score = 0
+    player.playerIndex = 0
+    loopIter = 0
+    ##################
 
-    basex = movementInfo['basex']
-    baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
+    # playerIndexGen = movementInfo['playerIndexGen']
+    # playerx, playery = int(SCREENWIDTH * 0.2), movementInfo['playery']
+    ##################
+    player.playerx, player.playery = int(SCREENWIDTH * 0.2), movementInfo['playery']
+    ##################
+
+    # basex = movementInfo['basex']
+    # baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
+    ###################
+    ###################
 
     # get 2 new pipes to add to upperPipes lowerPipes list
     newPipe1 = getRandomPipe()
@@ -235,16 +284,18 @@ def mainGame(movementInfo):
 
     pipeVelX = -4
 
-    # player velocity, max velocity, downward accleration, accleration on flap
-    playerVelY    =  -9   # player's velocity along Y, default same as playerFlapped
-    playerMaxVelY =  10   # max vel along Y, max descend speed
-    playerMinVelY =  -8   # min vel along Y, max ascend speed
-    playerAccY    =   1   # players downward accleration
-    playerRot     =  45   # player's rotation
-    playerVelRot  =   3   # angular speed
-    playerRotThr  =  20   # rotation threshold
-    playerFlapAcc =  -9   # players speed on flapping
-    playerFlapped = False # True when player flaps
+    # # player velocity, max velocity, downward accleration, accleration on flap
+    # playerVelY    =  -9   # player's velocity along Y, default same as playerFlapped
+    # playerMaxVelY =  10   # max vel along Y, max descend speed
+    # playerMinVelY =  -8   # min vel along Y, max ascend speed
+    # playerAccY    =   1   # players downward accleration
+    # playerRot     =  45   # player's rotation
+    # playerVelRot  =   3   # angular speed
+    # playerRotThr  =  20   # rotation threshold
+    # playerFlapAcc =  -9   # players speed on flapping
+    # playerFlapped = False # True when player flaps
+    ###################
+    ###################
 
     # TODO This is where player API will be connected. Replace event get with player.getPlay()
     while True:
@@ -253,55 +304,72 @@ def mainGame(movementInfo):
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
-                if playery > -2 * IMAGES['player'][0].get_height():
-                    playerVelY = playerFlapAcc
-                    playerFlapped = True
+                if player.playery > -2 * IMAGES['player'][0].get_height():
+                    player.playerVelY = player.playerFlapAcc
+                    player.playerFlapped = True
                     SOUNDS['wing'].play()
 
         # check for crash here
-        crashTest = checkCrash({'x': playerx, 'y': playery, 'index': playerIndex},
+        crashTest = checkCrash({'x': player.playerx, 'y': player.playery, 'index': player.playerIndex},
                                upperPipes, lowerPipes)
         if crashTest[0]:
             return {
-                'y': playery,
+                'y': player.playery,
                 'groundCrash': crashTest[1],
-                'basex': basex,
+                'basex': player.basex,
                 'upperPipes': upperPipes,
                 'lowerPipes': lowerPipes,
                 'score': score,
-                'playerVelY': playerVelY,
-                'playerRot': playerRot
+                'playerVelY': player.playerVelY,
+                'playerRot': player.playerRot
             }
 
         # check for score
-        playerMidPos = playerx + IMAGES['player'][0].get_width() / 2
+        playerMidPos = player.playerx + IMAGES['player'][0].get_width() / 2
         for pipe in upperPipes:
             pipeMidPos = pipe['x'] + IMAGES['pipe'][0].get_width() / 2
             if pipeMidPos <= playerMidPos < pipeMidPos + 4:
                 score += 1
                 SOUNDS['point'].play()
 
+        # # playerIndex basex change
+        # if (loopIter + 1) % 3 == 0:
+        #     playerIndex = next(playerIndexGen)
+        # loopIter = (loopIter + 1) % 30
+        # basex = -((-basex + 100) % baseShift)
+        #############
         # playerIndex basex change
         if (loopIter + 1) % 3 == 0:
-            playerIndex = next(playerIndexGen)
+            player.updatePlayerIndex()
         loopIter = (loopIter + 1) % 30
-        basex = -((-basex + 100) % baseShift)
+        player.liveUpdateBasex()
+        ##############
 
-        # rotate the player
-        if playerRot > -90:
-            playerRot -= playerVelRot
+        # # rotate the player
+        # if playerRot > -90:
+        #     playerRot -= playerVelRot
+        #############
+        player.rotatePlayer()
+        ##############
 
-        # player's movement
-        if playerVelY < playerMaxVelY and not playerFlapped:
-            playerVelY += playerAccY
-        if playerFlapped:
-            playerFlapped = False
+        # # player's movement
+        # if playerVelY < playerMaxVelY and not playerFlapped:
+        #     playerVelY += playerAccY
+        # if playerFlapped:
+        #     playerFlapped = False
+        #
+        #     # more rotation to cover the threshold (calculated in visible rotation)
+        #     playerRot = 45
+        #############
+        player.movePlayer()
+        ##############
 
-            # more rotation to cover the threshold (calculated in visible rotation)
-            playerRot = 45
-
-        playerHeight = IMAGES['player'][playerIndex].get_height()
-        playery += min(playerVelY, BASEY - playery - playerHeight)
+        # playerHeight = IMAGES['player'][playerIndex].get_height()
+        # playery += min(playerVelY, BASEY - playery - playerHeight)
+        #############
+        player.playerHeight = IMAGES['player'][player.playerIndex].get_height()
+        player.updateY()
+        ##############
 
         # move pipes to left
         for uPipe, lPipe in zip(upperPipes, lowerPipes):
@@ -326,17 +394,17 @@ def mainGame(movementInfo):
             SCREEN.blit(IMAGES['pipe'][0], (uPipe['x'], uPipe['y']))
             SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'], lPipe['y']))
 
-        SCREEN.blit(IMAGES['base'], (basex, BASEY))
+        SCREEN.blit(IMAGES['base'], (player.basex, BASEY))
         # print score so player overlaps the score
         showScore(score)
 
-        # Player rotation has a threshold
-        visibleRot = playerRotThr
-        if playerRot <= playerRotThr:
-            visibleRot = playerRot
-        
-        playerSurface = pygame.transform.rotate(IMAGES['player'][playerIndex], visibleRot)
-        SCREEN.blit(playerSurface, (playerx, playery))
+        # # Player rotation has a threshold
+        # visibleRot = playerRotThr
+        # if playerRot <= playerRotThr:
+        #     visibleRot = playerRot
+        visibleRot = player.checkRotationThreshold()
+        playerSurface = pygame.transform.rotate(IMAGES['player'][player.playerIndex], visibleRot)
+        SCREEN.blit(playerSurface, (player.playerx, player.playery))
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
