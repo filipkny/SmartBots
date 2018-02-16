@@ -1,54 +1,11 @@
-from itertools import cycle
 import random
 import sys
 
 import pygame
 from pygame.locals import *
+from Defaults import *
+import Player as p
 
-
-FPS = 30
-SCREENWIDTH  = 288
-SCREENHEIGHT = 512
-# amount by which base can maximum shift to left
-PIPEGAPSIZE  = 100 # gap between upper and lower part of pipe
-BASEY        = SCREENHEIGHT * 0.79
-# image, sound and hitmask  dicts
-IMAGES, SOUNDS, HITMASKS = {}, {}, {}
-
-# list of all possible players (tuple of 3 positions of flap)
-PLAYERS_LIST = (
-    # red bird
-    (
-        'assets/sprites/redbird-upflap.png',
-        'assets/sprites/redbird-midflap.png',
-        'assets/sprites/redbird-downflap.png',
-    ),
-    # blue bird
-    (
-        # amount by which base can maximum shift to left
-        'assets/sprites/bluebird-upflap.png',
-        'assets/sprites/bluebird-midflap.png',
-        'assets/sprites/bluebird-downflap.png',
-    ),
-    # yellow bird
-    (
-        'assets/sprites/yellowbird-upflap.png',
-        'assets/sprites/yellowbird-midflap.png',
-        'assets/sprites/yellowbird-downflap.png',
-    ),
-)
-
-# list of backgrounds
-BACKGROUNDS_LIST = (
-    'assets/sprites/background-day.png',
-    'assets/sprites/background-night.png',
-)
-
-# list of pipes
-PIPES_LIST = (
-    'assets/sprites/pipe-green.png',
-    'assets/sprites/pipe-red.png',
-)
 
 
 try:
@@ -64,38 +21,7 @@ def main():
     SCREEN = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
     pygame.display.set_caption('Flappy Bird')
 
-    # numbers sprites for score display
-    IMAGES['numbers'] = (
-        pygame.image.load('assets/sprites/0.png').convert_alpha(),
-        pygame.image.load('assets/sprites/1.png').convert_alpha(),
-        pygame.image.load('assets/sprites/2.png').convert_alpha(),
-        pygame.image.load('assets/sprites/3.png').convert_alpha(),
-        pygame.image.load('assets/sprites/4.png').convert_alpha(),
-        pygame.image.load('assets/sprites/5.png').convert_alpha(),
-        pygame.image.load('assets/sprites/6.png').convert_alpha(),
-        pygame.image.load('assets/sprites/7.png').convert_alpha(),
-        pygame.image.load('assets/sprites/8.png').convert_alpha(),
-        pygame.image.load('assets/sprites/9.png').convert_alpha()
-    )
-
-    # game over sprite
-    IMAGES['gameover'] = pygame.image.load('assets/sprites/gameover.png').convert_alpha()
-    # message sprite for welcome screen
-    IMAGES['message'] = pygame.image.load('assets/sprites/message.png').convert_alpha()
-    # base (ground) sprite
-    IMAGES['base'] = pygame.image.load('assets/sprites/base.png').convert_alpha()
-
-    # sounds
-    if 'win' in sys.platform:
-        soundExt = '.wav'
-    else:
-        soundExt = '.ogg'
-
-    SOUNDS['die']    = pygame.mixer.Sound('assets/audio/die' + soundExt)
-    SOUNDS['hit']    = pygame.mixer.Sound('assets/audio/hit' + soundExt)
-    SOUNDS['point']  = pygame.mixer.Sound('assets/audio/point' + soundExt)
-    SOUNDS['swoosh'] = pygame.mixer.Sound('assets/audio/swoosh' + soundExt)
-    SOUNDS['wing']   = pygame.mixer.Sound('assets/audio/wing' + soundExt)
+    SOUND, IMAGES = loadPygameDefaults()
 
     while True:
         # select random background sprites
@@ -132,90 +58,11 @@ def main():
         )
 
 #----------- Visual stuff ends here ------------#
-        player = Player()
+        player = p.Player()
         movementInfo = showWelcomeAnimation(player)
         crashInfo = mainGame(player)
         showGameOverScreen(crashInfo, player)
 
-# TODO complete player
-class Player(object):
-    def __init__(self):
-        self.playerIndex = 0 # index of player to blit on screen
-        self.playerIndexGen = cycle([0, 1, 2, 1])
-        self.playerx = int(SCREENWIDTH * 0.2)
-        self.playery = int((SCREENHEIGHT - IMAGES['player'][0].get_height()) / 2)
-        self.playerShmVals = {'val': 0, 'dir': 1}
-        self.basex = 0
-        self.baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
-        self.playerVelY = -9  # player's velocity along Y, default same as playerFlapped
-        self.playerMaxVelY = 10  # max vel along Y, max descend speed
-        self.playerMinVelY = -8  # min vel along Y, max ascend speed
-        self.playerAccY = 1  # players downward accleration
-        self.playerRot = 45  # player's rotation
-        self.playerVelRot = 3  # angular speed
-        self.playerRotThr = 20  # rotation threshold
-        self.playerFlapAcc = -9  # players speed on flapping
-        self.playerFlapped = False  # True when player flaps
-        self.playerHeight = 0
-
-    def updatePlayerIndex(self):
-        self.playerIndex = next(self.playerIndexGen)
-
-    def playerShm(self):
-        """oscillates the value of playerShm['val'] between 8 and -8"""
-        if abs(self.playerShmVals['val']) == 8:
-            self.playerShmVals['dir'] *= -1
-
-        if self.playerShmVals['dir'] == 1:
-            self.playerShmVals['val'] += 1
-        else:
-            self.playerShmVals['val'] -= 1
-
-    def updateBasex(self):
-        # amount by which base can maximum shift to left
-        self.basex = -((-self.basex + 4) % self.baseShift)
-
-    def liveUpdateBasex(self):
-        self.basex = -((-self.basex + 100) % self.baseShift)
-
-    def rotatePlayer(self):
-        if self.playerRot > -90:
-            self.playerRot -= self.playerVelRot
-
-    def movePlayer(self):
-        # player's movement
-        if self.playerVelY < self.playerMaxVelY and not self.playerFlapped:
-            self.playerVelY += self.playerAccY
-        if self.playerFlapped:
-            self.playerFlapped = False
-            # more rotation to cover the threshold (calculated in visible rotation)
-            self.playerRot = 45
-
-    def updateY(self):
-        self.playery += min(self.playerVelY, BASEY - self.playery - self.playerHeight)
-
-    def checkRotationThreshold(self):
-        # Player rotation has a threshold
-        visibleRot = self.playerRotThr
-        if self.playerRot <= self.playerRotThr:
-            visibleRot = self.playerRot
-
-        return visibleRot
-
-    def shiftY(self):
-        # player y shift
-        if self.playery + self.playerHeight < BASEY - 1:
-            self.playery += min(self.playerVelY, BASEY - self.playery - self.playerHeight)
-
-    def changeVelocity(self):
-        # player velocity change
-        if self.playerVelY < 15:
-            self.playerVelY += self.playerAccY
-
-    def rotateIfPipeCrash(self, pipeCrash):
-        if not pipeCrash:
-            if self.playerRot > -90:
-                self.playerRot -= self.playerVelRot
 
 def showWelcomeAnimation(player):
     """Shows welcome screen animation of flappy bird"""
@@ -285,15 +132,19 @@ def mainGame(player):
 
     # TODO This is where player API will be connected. Replace event get with player.getPlay()
     while True:
+        player.jumping = False
+        #player.jumping = neuralNetwork.getAction() THIS IS WHERE API DECIDES WHAT TO DO
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 pygame.quit()
                 sys.exit()
-            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
-                if player.playery > -2 * IMAGES['player'][0].get_height():
-                    player.playerVelY = player.playerFlapAcc
-                    player.playerFlapped = True
-                    SOUNDS['wing'].play()
+
+            #if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+        if player.jumping == True:
+            if player.playery > -2 * IMAGES['player'][0].get_height():
+                player.playerVelY = player.playerFlapAcc
+                player.playerFlapped = True
+                SOUNDS['wing'].play()
 
         # check for crash here
         crashTest = checkCrash({'x': player.playerx, 'y': player.playery, 'index': player.playerIndex},
@@ -361,6 +212,7 @@ def mainGame(player):
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
+        player.jumping = False
 
 
 def showGameOverScreen(crashInfo, player):
