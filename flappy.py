@@ -132,19 +132,19 @@ def mainGame(player):
 
     # TODO This is where player API will be connected. Replace event get with player.getPlay()
     while True:
-        player.jumping = False
+       # player.jumping = False
         #player.jumping = neuralNetwork.getAction() THIS IS WHERE API DECIDES WHAT TO DO
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 pygame.quit()
                 sys.exit()
 
-            #if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
-        if player.jumping == True:
-            if player.playery > -2 * IMAGES['player'][0].get_height():
-                player.playerVelY = player.playerFlapAcc
-                player.playerFlapped = True
-                SOUNDS['wing'].play()
+            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+            #if player.jumping == True:
+                if player.playery > -2 * IMAGES['player'][0].get_height():
+                    player.playerVelY = player.playerFlapAcc
+                    player.playerFlapped = True
+                    SOUNDS['wing'].play()
 
         # check for crash here
         crashTest = checkCrash({'x': player.playerx, 'y': player.playery, 'index': player.playerIndex},
