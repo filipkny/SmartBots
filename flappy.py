@@ -58,8 +58,9 @@ def main():
         )
 
 #----------- Visual stuff ends here ------------#
+        nn = Neural_net(w1,w2)
         player = p.Player()
-        movementInfo = showWelcomeAnimation(player)
+        #movementInfo = showWelcomeAnimation(player)
         crashInfo = mainGame(player)
         showGameOverScreen(crashInfo, player)
 
@@ -132,7 +133,33 @@ def mainGame(player):
 
     # TODO This is where player API will be connected. Replace event get with player.getPlay()
     while True:
-       # player.jumping = False
+        player.jumping = False
+        
+        #Get index of first pipe ahead of bird
+        for i in range(len(lowerPipes)):
+            if lowerPipes[i]['x'] > player.playerx:
+                ind = i
+                break
+            
+        #Compute distance in X between bird and first pipe ahead
+        xdiff = lowerPipes[i]['x'] - player.playerx
+        
+        #Compute the distance in Y between bird and the middle of the first pipe crossing
+        h_middle = lowerPipes[i]['y'] + 210 #210 because the gap is always 420
+        ydiff = player.playery - h_middle
+        
+        #Create input vector for the neural network
+        X = [xdiff,ydiff]
+        
+        
+        #Forward propagation of NN to get the command for bird
+        nn.forwardprop(X)
+        y_nn = nn.get_y()
+        
+        if y_nn > 0.5:
+            player.jumping = True
+        
+
         #player.jumping = neuralNetwork.getAction() THIS IS WHERE API DECIDES WHAT TO DO
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
@@ -213,6 +240,11 @@ def mainGame(player):
         pygame.display.update()
         FPSCLOCK.tick(FPS)
         player.jumping = False
+
+
+
+
+
 
 
 def showGameOverScreen(crashInfo, player):
