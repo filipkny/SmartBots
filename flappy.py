@@ -6,13 +6,15 @@ from pygame.locals import *
 from Defaults import *
 import Player as p
 
-
-
 try:
     xrange
 except NameError:
     xrange = range
 
+VISUALS_SCORE = True
+VISUALS_PLAYER = True
+SOUND_EFFECTS = False
+VISUALS_MAP = True
 
 def main():
     global SCREEN, FPSCLOCK
@@ -57,10 +59,9 @@ def main():
             getHitmask(IMAGES['player'][2]),
         )
 
-#----------- Visual stuff ends here ------------#
-        nn = Neural_net(w1,w2)
+        #nn = Neural_net(w1,w2)
         player = p.Player()
-        #movementInfo = showWelcomeAnimation(player)
+        movementInfo = showWelcomeAnimation(player)
         crashInfo = mainGame(player)
         showGameOverScreen(crashInfo, player)
 
@@ -81,7 +82,8 @@ def showWelcomeAnimation(player):
                 sys.exit()
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
                 # make first flap sound and return values for mainGame
-                SOUNDS['wing'].play()
+                if SOUND_EFFECTS:
+                    SOUNDS['wing'].play()
                 return
 
 
@@ -94,12 +96,14 @@ def showWelcomeAnimation(player):
         # Not sure what this does?
         player.playerShm()
 
-        # draw sprites
-        SCREEN.blit(IMAGES['background'], (0,0))
-        SCREEN.blit(IMAGES['player'][player.playerIndex],
-                    (player.playerx, player.playery + player.playerShmVals['val']))
-        SCREEN.blit(IMAGES['message'], (messagex, messagey))
-        SCREEN.blit(IMAGES['base'], (player.basex, BASEY))
+        if VISUALS_PLAYER:
+            SCREEN.blit(IMAGES['player'][player.playerIndex],
+                        (player.playerx, player.playery + player.playerShmVals['val']))
+        if VISUALS_MAP:
+            # draw sprites
+            SCREEN.blit(IMAGES['background'], (0,0))
+            SCREEN.blit(IMAGES['message'], (messagex, messagey))
+            SCREEN.blit(IMAGES['base'], (player.basex, BASEY))
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
@@ -151,13 +155,13 @@ def mainGame(player):
         #Create input vector for the neural network
         X = [xdiff,ydiff]
         
-        
+
         #Forward propagation of NN to get the command for bird
-        nn.forwardprop(X)
-        y_nn = nn.get_y()
+        #nn.forwardprop(X)
+        #y_nn = nn.get_y()
         
-        if y_nn > 0.5:
-            player.jumping = True
+        #if y_nn > 0.5:
+        #    player.jumping = True
         
 
         #player.jumping = neuralNetwork.getAction() THIS IS WHERE API DECIDES WHAT TO DO
@@ -171,7 +175,8 @@ def mainGame(player):
                 if player.playery > -2 * IMAGES['player'][0].get_height():
                     player.playerVelY = player.playerFlapAcc
                     player.playerFlapped = True
-                    SOUNDS['wing'].play()
+                    if SOUND_EFFECTS:
+                        SOUNDS['wing'].play()
 
         # check for crash here
         crashTest = checkCrash({'x': player.playerx, 'y': player.playery, 'index': player.playerIndex},
@@ -190,7 +195,8 @@ def mainGame(player):
             pipeMidPos = pipe['x'] + IMAGES['pipe'][0].get_width() / 2
             if pipeMidPos <= playerMidPos < pipeMidPos + 4:
                 score += 1
-                SOUNDS['point'].play()
+                if SOUND_EFFECTS:
+                    SOUNDS['point'].play()
 
 
         # playerIndex basex change
@@ -223,29 +229,25 @@ def mainGame(player):
             lowerPipes.pop(0)
 
         # draw sprites
-        SCREEN.blit(IMAGES['background'], (0,0))
+        if VISUALS_MAP:
+            SCREEN.blit(IMAGES['background'], (0,0))
 
-        for uPipe, lPipe in zip(upperPipes, lowerPipes):
-            SCREEN.blit(IMAGES['pipe'][0], (uPipe['x'], uPipe['y']))
-            SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'], lPipe['y']))
+            for uPipe, lPipe in zip(upperPipes, lowerPipes):
+                SCREEN.blit(IMAGES['pipe'][0], (uPipe['x'], uPipe['y']))
+                SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'], lPipe['y']))
 
-        SCREEN.blit(IMAGES['base'], (player.basex, BASEY))
+            SCREEN.blit(IMAGES['base'], (player.basex, BASEY))
 
         showScore(score)
 
         visibleRot = player.checkRotationThreshold()
         playerSurface = pygame.transform.rotate(IMAGES['player'][player.playerIndex], visibleRot)
-        SCREEN.blit(playerSurface, (player.playerx, player.playery))
+        if VISUALS_PLAYER:
+            SCREEN.blit(playerSurface, (player.playerx, player.playery))
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
         player.jumping = False
-
-
-
-
-
-
 
 def showGameOverScreen(crashInfo, player):
 
@@ -257,9 +259,10 @@ def showGameOverScreen(crashInfo, player):
     upperPipes, lowerPipes = crashInfo['upperPipes'], crashInfo['lowerPipes']
 
     # play hit and die sounds
-    SOUNDS['hit'].play()
-    if not crashInfo['groundCrash']:
-        SOUNDS['die'].play()
+    if SOUND_EFFECTS:
+        SOUNDS['hit'].play()
+        if not crashInfo['groundCrash']:
+            SOUNDS['die'].play()
 
     while True:
         for event in pygame.event.get():
@@ -274,18 +277,20 @@ def showGameOverScreen(crashInfo, player):
         player.changeVelocity()
         player.rotateIfPipeCrash(crashInfo['groundCrash'])
 
-        # draw sprites
-        SCREEN.blit(IMAGES['background'], (0,0))
+        if VISUALS_MAP:
+            # draw sprites
+            SCREEN.blit(IMAGES['background'], (0,0))
 
-        for uPipe, lPipe in zip(upperPipes, lowerPipes):
-            SCREEN.blit(IMAGES['pipe'][0], (uPipe['x'], uPipe['y']))
-            SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'], lPipe['y']))
+            for uPipe, lPipe in zip(upperPipes, lowerPipes):
+                SCREEN.blit(IMAGES['pipe'][0], (uPipe['x'], uPipe['y']))
+                SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'], lPipe['y']))
 
-        SCREEN.blit(IMAGES['base'], (player.basex, BASEY))
+            SCREEN.blit(IMAGES['base'], (player.basex, BASEY))
         showScore(score)
 
-        playerSurface = pygame.transform.rotate(IMAGES['player'][1], player.playerRot)
-        SCREEN.blit(playerSurface, (player.playerx,player.playery))
+        if VISUALS_PLAYER:
+            playerSurface = pygame.transform.rotate(IMAGES['player'][1], player.playerRot)
+            SCREEN.blit(playerSurface, (player.playerx,player.playery))
 
         FPSCLOCK.tick(FPS)
         pygame.display.update()
@@ -317,7 +322,8 @@ def showScore(score):
     Xoffset = (SCREENWIDTH - totalWidth) / 2
 
     for digit in scoreDigits:
-        SCREEN.blit(IMAGES['numbers'][digit], (Xoffset, SCREENHEIGHT * 0.1))
+        if VISUALS_SCORE:
+            SCREEN.blit(IMAGES['numbers'][digit], (Xoffset, SCREENHEIGHT * 0.1))
         Xoffset += IMAGES['numbers'][digit].get_width()
 
 
