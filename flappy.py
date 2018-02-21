@@ -13,8 +13,10 @@ except NameError:
 
 VISUALS_SCORE = True
 VISUALS_PLAYER = True
-SOUND_EFFECTS = False
+SOUND_EFFECTS = True
 VISUALS_MAP = True
+MANUAL_PLAY = True
+
 
 def main():
     global SCREEN, FPSCLOCK
@@ -76,16 +78,19 @@ def showWelcomeAnimation(player):
     messagey = int(SCREENHEIGHT * 0.12)
 
     while True:
-        for event in pygame.event.get():
-            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-                pygame.quit()
-                sys.exit()
-            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
-                # make first flap sound and return values for mainGame
-                if SOUND_EFFECTS:
-                    SOUNDS['wing'].play()
+        if MANUAL_PLAY:
+            for event in pygame.event.get():
+                if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                    pygame.quit()
+                    sys.exit()
+                if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+                    # make first flap sound and return values for mainGame
+                    if SOUND_EFFECTS:
+                        SOUNDS['wing'].play()
+                    return
+        else:
+            if player.keepPlaying:
                 return
-
 
         # adjust playery, playerIndex, basex
         if (loopIter + 1) % 5 == 0:
@@ -135,10 +140,7 @@ def mainGame(player):
 
     pipeVelX = -4
 
-    # TODO This is where player API will be connected. Replace event get with player.getPlay()
     while True:
-        player.jumping = False
-        
         #Get index of first pipe ahead of bird
         for i in range(len(lowerPipes)):
             if lowerPipes[i]['x'] > player.playerx:
@@ -164,14 +166,23 @@ def mainGame(player):
         #    player.jumping = True
         
 
-        #player.jumping = neuralNetwork.getAction() THIS IS WHERE API DECIDES WHAT TO DO
-        for event in pygame.event.get():
-            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-                pygame.quit()
-                sys.exit()
+        if MANUAL_PLAY:
+            #player.jumping = neuralNetwork.getAction() THIS IS WHERE API DECIDES WHAT TO DO
+            for event in pygame.event.get():
+                if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                    pygame.quit()
+                    sys.exit()
 
-            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
-            #if player.jumping == True:
+                if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+
+                    if player.playery > -2 * IMAGES['player'][0].get_height():
+                        player.playerVelY = player.playerFlapAcc
+                        player.playerFlapped = True
+                        if SOUND_EFFECTS:
+                            SOUNDS['wing'].play()
+
+        else:
+            if player.jumping == True:
                 if player.playery > -2 * IMAGES['player'][0].get_height():
                     player.playerVelY = player.playerFlapAcc
                     player.playerFlapped = True
@@ -247,7 +258,6 @@ def mainGame(player):
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
-        player.jumping = False
 
 def showGameOverScreen(crashInfo, player):
 
@@ -265,13 +275,17 @@ def showGameOverScreen(crashInfo, player):
             SOUNDS['die'].play()
 
     while True:
-        for event in pygame.event.get():
-            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-                pygame.quit()
-                sys.exit()
-            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
-                if player.playery + player.playerHeight >= BASEY - 1:
-                    return
+        if MANUAL_PLAY:
+            for event in pygame.event.get():
+                if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                    pygame.quit()
+                    sys.exit()
+                if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+                    if player.playery + player.playerHeight >= BASEY - 1:
+                        return
+        else:
+            if player.keepPlaying:
+                return
 
         player.shiftY()
         player.changeVelocity()

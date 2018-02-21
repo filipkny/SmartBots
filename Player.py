@@ -19,7 +19,8 @@ class Player(object):
         self.playerFlapAcc = -9  # players speed on flapping
         self.playerFlapped = False  # True when player flaps
         self.playerHeight = 0
-        self.jumping = False
+        self.jumping = True
+        self.keepPlaying = True
 
     def updatePlayerIndex(self):
         self.playerIndex = next(self.playerIndexGen)
