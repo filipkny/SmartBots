@@ -15,10 +15,10 @@ VISUALS_SCORE = True
 VISUALS_PLAYER = True
 SOUND_EFFECTS = True
 VISUALS_MAP = True
-MANUAL_PLAY = True
+MANUAL_PLAY = False
 
 
-def main():
+def main(NN_weights):
     global SCREEN, FPSCLOCK
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
@@ -65,7 +65,10 @@ def main():
         player = p.Player()
         movementInfo = showWelcomeAnimation(player)
         crashInfo = mainGame(player)
-        showGameOverScreen(crashInfo, player)
+        gameover,fitness = showGameOverScreen(crashInfo, player)
+        if gameover:
+            print(fitness)
+            return fitness, True
 
 
 def showWelcomeAnimation(player):
@@ -95,6 +98,7 @@ def showWelcomeAnimation(player):
         # adjust playery, playerIndex, basex
         if (loopIter + 1) % 5 == 0:
            player.updatePlayerIndex()
+
         loopIter = (loopIter + 1) % 30
         player.updateBasex()
 
@@ -115,6 +119,7 @@ def showWelcomeAnimation(player):
 
 
 def mainGame(player):
+    loops = 0
 
     score = 0
     player.playerIndex = 0
@@ -141,6 +146,9 @@ def mainGame(player):
     pipeVelX = -4
 
     while True:
+
+        loops = loops + 1
+        fitness  = loops * pipeVelX
         #Get index of first pipe ahead of bird
         for i in range(len(lowerPipes)):
             if lowerPipes[i]['x'] > player.playerx:
@@ -198,6 +206,7 @@ def mainGame(player):
                 'upperPipes': upperPipes,
                 'lowerPipes': lowerPipes,
                 'score': score,
+                'fitness': fitness,
             }
 
         # check for score
@@ -282,10 +291,10 @@ def showGameOverScreen(crashInfo, player):
                     sys.exit()
                 if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
                     if player.playery + player.playerHeight >= BASEY - 1:
-                        return
+                        return True, crashInfo['fitness']
         else:
             if player.keepPlaying:
-                return
+                return True, crashInfo['fitness']
 
         player.shiftY()
         player.changeVelocity()
@@ -402,4 +411,6 @@ def getHitmask(image):
     return mask
 
 if __name__ == '__main__':
-    main()
+    keepPlaying = True
+    while keepPlaying:
+        fit, keepPlaying = main("empty")

@@ -1,6 +1,6 @@
 import pygame
 import sys
-FPS = 30
+FPS = 100
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
 
