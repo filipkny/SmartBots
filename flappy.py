@@ -13,19 +13,20 @@ except NameError:
 
 VISUALS_SCORE = True
 VISUALS_PLAYER = True
-SOUND_EFFECTS = True
+SOUND_EFFECTS = False
 VISUALS_MAP = True
 MANUAL_PLAY = False
 
+GLOBAL_FIT = 0
 
 def main(NN_weights):
     global SCREEN, FPSCLOCK
-    pygame.init()
-    FPSCLOCK = pygame.time.Clock()
-    SCREEN = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
-    pygame.display.set_caption('Flappy Bird')
+    #pygame.init() #del
+    FPSCLOCK = pygame.time.Clock()#del
+    SCREEN = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))#del
+    #pygame.display.set_caption('Flappy Bird')#del
 
-    SOUND, IMAGES = loadPygameDefaults()
+    SOUND, IMAGES = loadPygameDefaults(SOUND_EFFECTS)
 
     while True:
         # select random background sprites
@@ -67,7 +68,6 @@ def main(NN_weights):
         crashInfo = mainGame(player)
         gameover,fitness = showGameOverScreen(crashInfo, player)
         if gameover:
-            print(fitness)
             return fitness, True
 
 
@@ -114,8 +114,8 @@ def showWelcomeAnimation(player):
             SCREEN.blit(IMAGES['message'], (messagex, messagey))
             SCREEN.blit(IMAGES['base'], (player.basex, BASEY))
 
-        pygame.display.update()
-        FPSCLOCK.tick(FPS)
+        #pygame.display.update()
+        #FPSCLOCK.tick(FPS)
 
 
 def mainGame(player):
@@ -265,8 +265,8 @@ def mainGame(player):
         if VISUALS_PLAYER:
             SCREEN.blit(playerSurface, (player.playerx, player.playery))
 
-        pygame.display.update()
-        FPSCLOCK.tick(FPS)
+        # pygame.display.update()
+        # FPSCLOCK.tick(FPS)
 
 def showGameOverScreen(crashInfo, player):
 
@@ -413,4 +413,5 @@ def getHitmask(image):
 if __name__ == '__main__':
     keepPlaying = True
     while keepPlaying:
-        fit, keepPlaying = main("empty")
+        GLOBAL_FIT, keepPlaying = main("empty")
+        print(GLOBAL_FIT)
