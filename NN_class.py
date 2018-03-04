@@ -5,8 +5,8 @@ def sigmoid(x):
 
 class Neural_net:
     def __init__(self,w1,w2):#1 hidden layer NN; w1,w2 - weight matricies, rows indicate the amount of neurons in next layer
-        self.w1 = w1 #numpy array
-        self.w2 = w2
+        self.w1 = np.reshape(w1,(3,2)) #numpy array
+        self.w2 = np.array(w2)
         self.y = 0
         
     def set_y(self,y):
