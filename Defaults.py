@@ -1,6 +1,6 @@
 import pygame
 import sys
-FPS = 30
+FPS = 100
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
 
@@ -46,7 +46,7 @@ PIPES_LIST = (
 )
 
 
-def loadPygameDefaults():
+def loadPygameDefaults(SOUND_EFFECTS):
     # numbers sprites for score display
     IMAGES['numbers'] = (
         pygame.image.load('assets/sprites/0.png').convert_alpha(),
@@ -68,16 +68,19 @@ def loadPygameDefaults():
     # base (ground) sprite
     IMAGES['base'] = pygame.image.load('assets/sprites/base.png').convert_alpha()
 
-    # sounds
-    if 'win' in sys.platform:
-        soundExt = '.wav'
+    if SOUND_EFFECTS:
+        # sounds
+        if 'win' in sys.platform:
+            soundExt = '.wav'
+        else:
+            soundExt = '.ogg'
+
+        SOUNDS['die'] = pygame.mixer.Sound('assets/audio/die' + soundExt)
+        SOUNDS['hit'] = pygame.mixer.Sound('assets/audio/hit' + soundExt)
+        SOUNDS['point'] = pygame.mixer.Sound('assets/audio/point' + soundExt)
+        SOUNDS['swoosh'] = pygame.mixer.Sound('assets/audio/swoosh' + soundExt)
+        SOUNDS['wing'] = pygame.mixer.Sound('assets/audio/wing' + soundExt)
+
+        return SOUNDS,IMAGES
     else:
-        soundExt = '.ogg'
-
-    SOUNDS['die'] = pygame.mixer.Sound('assets/audio/die' + soundExt)
-    SOUNDS['hit'] = pygame.mixer.Sound('assets/audio/hit' + soundExt)
-    SOUNDS['point'] = pygame.mixer.Sound('assets/audio/point' + soundExt)
-    SOUNDS['swoosh'] = pygame.mixer.Sound('assets/audio/swoosh' + soundExt)
-    SOUNDS['wing'] = pygame.mixer.Sound('assets/audio/wing' + soundExt)
-
-    return SOUNDS,IMAGES
+        return "empty",IMAGES

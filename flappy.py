@@ -5,6 +5,7 @@ import pygame
 from pygame.locals import *
 from Defaults import *
 import Player as p
+from NN_class import Neural_net
 
 try:
     xrange
@@ -13,19 +14,20 @@ except NameError:
 
 VISUALS_SCORE = True
 VISUALS_PLAYER = True
-SOUND_EFFECTS = True
+SOUND_EFFECTS = False
 VISUALS_MAP = True
-MANUAL_PLAY = True
+MANUAL_PLAY = False
 
+GLOBAL_FIT = 0
 
-def main():
+def main(NN_weights):
     global SCREEN, FPSCLOCK
-    pygame.init()
-    FPSCLOCK = pygame.time.Clock()
-    SCREEN = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
-    pygame.display.set_caption('Flappy Bird')
+    #pygame.init() #del
+    FPSCLOCK = pygame.time.Clock()#del
+    SCREEN = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))#del
+    #pygame.display.set_caption('Flappy Bird')#del
 
-    SOUND, IMAGES = loadPygameDefaults()
+    SOUND, IMAGES = loadPygameDefaults(SOUND_EFFECTS)
 
     while True:
         # select random background sprites
@@ -61,11 +63,13 @@ def main():
             getHitmask(IMAGES['player'][2]),
         )
 
-        #nn = Neural_net(w1,w2)
+
         player = p.Player()
         movementInfo = showWelcomeAnimation(player)
-        crashInfo = mainGame(player)
-        showGameOverScreen(crashInfo, player)
+        crashInfo = mainGame(player, NN_weights)
+        gameover,fitness = showGameOverScreen(crashInfo, player)
+        if gameover:
+            return fitness, True
 
 
 def showWelcomeAnimation(player):
@@ -95,6 +99,7 @@ def showWelcomeAnimation(player):
         # adjust playery, playerIndex, basex
         if (loopIter + 1) % 5 == 0:
            player.updatePlayerIndex()
+
         loopIter = (loopIter + 1) % 30
         player.updateBasex()
 
@@ -110,11 +115,12 @@ def showWelcomeAnimation(player):
             SCREEN.blit(IMAGES['message'], (messagex, messagey))
             SCREEN.blit(IMAGES['base'], (player.basex, BASEY))
 
-        pygame.display.update()
-        FPSCLOCK.tick(FPS)
+        #pygame.display.update()
+        #FPSCLOCK.tick(FPS)
 
 
-def mainGame(player):
+def mainGame(player, weights):
+    loops = 0
 
     score = 0
     player.playerIndex = 0
@@ -138,9 +144,17 @@ def mainGame(player):
         {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[1]['y']},
     ]
 
+
     pipeVelX = -4
 
+    w1 = weights[0:12]
+
+    w2 = weights[12:18]
+    nn = Neural_net(w1, w2)
+
     while True:
+        loops = loops + 1
+        fitness  = loops * pipeVelX
         #Get index of first pipe ahead of bird
         for i in range(len(lowerPipes)):
             if lowerPipes[i]['x'] > player.playerx:
@@ -173,7 +187,7 @@ def mainGame(player):
                     pygame.quit()
                     sys.exit()
 
-                if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+                #if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
 
                     if player.playery > -2 * IMAGES['player'][0].get_height():
                         player.playerVelY = player.playerFlapAcc
@@ -198,6 +212,7 @@ def mainGame(player):
                 'upperPipes': upperPipes,
                 'lowerPipes': lowerPipes,
                 'score': score,
+                'fitness': fitness,
             }
 
         # check for score
@@ -256,8 +271,8 @@ def mainGame(player):
         if VISUALS_PLAYER:
             SCREEN.blit(playerSurface, (player.playerx, player.playery))
 
-        pygame.display.update()
-        FPSCLOCK.tick(FPS)
+        # pygame.display.update()
+        # FPSCLOCK.tick(FPS)
 
 def showGameOverScreen(crashInfo, player):
 
@@ -282,10 +297,10 @@ def showGameOverScreen(crashInfo, player):
                     sys.exit()
                 if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
                     if player.playery + player.playerHeight >= BASEY - 1:
-                        return
+                        return True, crashInfo['fitness']
         else:
             if player.keepPlaying:
-                return
+                return True, crashInfo['fitness']
 
         player.shiftY()
         player.changeVelocity()
@@ -402,4 +417,8 @@ def getHitmask(image):
     return mask
 
 if __name__ == '__main__':
-    main()
+
+    keepPlaying = True
+    while keepPlaying:
+        GLOBAL_FIT, keepPlaying = main("empty")
+        print(GLOBAL_FIT)
