@@ -6,6 +6,7 @@ from pygame.locals import *
 from Defaults import *
 import Player as p
 from NN_class import Neural_net
+import numpy as np
 
 try:
     xrange
@@ -21,6 +22,8 @@ MANUAL_PLAY = False
 GLOBAL_FIT = 0
 
 def main(NN_weights):
+#    print("Im at main and these are my weights")
+   # print(NN_weights)
     global SCREEN, FPSCLOCK
     #pygame.init() #del
     FPSCLOCK = pygame.time.Clock()#del
@@ -69,7 +72,9 @@ def main(NN_weights):
         crashInfo = mainGame(player, NN_weights)
         gameover,fitness = showGameOverScreen(crashInfo, player)
         if gameover:
-            return fitness, True
+            #print("Game is over with fitness")
+            #print(fitness)
+            return fitness
 
 
 def showWelcomeAnimation(player):
@@ -147,14 +152,14 @@ def mainGame(player, weights):
 
     pipeVelX = -4
 
-    w1 = weights[0:12]
-
-    w2 = weights[12:18]
+    w1 = weights[:12]
+    w2 = [weights[12:]]
     nn = Neural_net(w1, w2)
 
     while True:
+        #print("im playing")
         loops = loops + 1
-        fitness  = loops * pipeVelX
+
         #Get index of first pipe ahead of bird
         for i in range(len(lowerPipes)):
             if lowerPipes[i]['x'] > player.playerx:
@@ -170,14 +175,14 @@ def mainGame(player, weights):
         
         #Create input vector for the neural network
         X = [xdiff,ydiff]
-        
 
+        fitness = loops * pipeVelX + abs(ydiff)
         #Forward propagation of NN to get the command for bird
-        #nn.forwardprop(X)
-        #y_nn = nn.get_y()
+        nn.forwardprop(X)
+        y_nn = nn.get_y()
         
-        #if y_nn > 0.5:
-        #    player.jumping = True
+        if y_nn > 0.5:
+           player.jumping = True
         
 
         if MANUAL_PLAY:
@@ -187,7 +192,7 @@ def mainGame(player, weights):
                     pygame.quit()
                     sys.exit()
 
-                #if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+                if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
 
                     if player.playery > -2 * IMAGES['player'][0].get_height():
                         player.playerVelY = player.playerFlapAcc
@@ -197,6 +202,8 @@ def mainGame(player, weights):
 
         else:
             if player.jumping == True:
+                #print("Im jumping at ")
+               # print(fitness)
                 if player.playery > -2 * IMAGES['player'][0].get_height():
                     player.playerVelY = player.playerFlapAcc
                     player.playerFlapped = True
@@ -421,4 +428,4 @@ if __name__ == '__main__':
     keepPlaying = True
     while keepPlaying:
         GLOBAL_FIT, keepPlaying = main("empty")
-        print(GLOBAL_FIT)
+        #print(GLOBAL_FIT)

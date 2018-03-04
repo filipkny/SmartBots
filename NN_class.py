@@ -1,11 +1,12 @@
 import numpy as np
 
 def sigmoid(x):
+    #print(" im at exponential", x)
     return 1 / (1 + np.exp(-x))
 
 class Neural_net:
     def __init__(self,w1,w2):#1 hidden layer NN; w1,w2 - weight matricies, rows indicate the amount of neurons in next layer
-        self.w1 = np.reshape(w1,(3,2)) #numpy array
+        self.w1 = np.reshape(w1,(6,2)) #numpy array
         self.w2 = np.array(w2)
         self.y = 0
         
@@ -21,14 +22,17 @@ class Neural_net:
             return
         X = np.array(X)
         h = sigmoid(np.matmul(self.w1,X))
-        
+
+        #print(np.shape(self.w2))
+        #print(np.shape(h))
+
         if np.shape(self.w2)[1] != np.shape(h)[0]:
             print('Error: The weight matrix w2 has an incorrect amount of columns. FORWARDPROPAGATION NOT COMPUTED')
             return
         
-        if np.shape(self.w2)[0] !=1 :
-            print('Error: The weight matrix w2 does not have one row, the forward propagation will result in more than one neuron in output layer. FORWARDPROPAGATION NOT COMPUTED')
-            return
+        if np.shape(self.w2)[0] != 1:
+           print('Error: The weight matrix w2 does not have one row, the forward propagation will result in more than one neuron in output layer. FORWARDPROPAGATION NOT COMPUTED')
+           return
         
         y = float(sigmoid(np.matmul(self.w2,h)))
         self.set_y(y)
