@@ -5,6 +5,7 @@ import pygame
 from pygame.locals import *
 from Defaults import *
 import Player as p
+from NN_class import Neural_net
 
 try:
     xrange
@@ -62,10 +63,10 @@ def main(NN_weights):
             getHitmask(IMAGES['player'][2]),
         )
 
-        #nn = Neural_net(w1,w2)
+
         player = p.Player()
         movementInfo = showWelcomeAnimation(player)
-        crashInfo = mainGame(player)
+        crashInfo = mainGame(player, NN_weights)
         gameover,fitness = showGameOverScreen(crashInfo, player)
         if gameover:
             return fitness, True
@@ -118,7 +119,7 @@ def showWelcomeAnimation(player):
         #FPSCLOCK.tick(FPS)
 
 
-def mainGame(player):
+def mainGame(player, weights):
     loops = 0
 
     score = 0
@@ -143,10 +144,15 @@ def mainGame(player):
         {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[1]['y']},
     ]
 
+
     pipeVelX = -4
 
-    while True:
+    w1 = weights[0:12]
 
+    w2 = weights[12:18]
+    nn = Neural_net(w1, w2)
+
+    while True:
         loops = loops + 1
         fitness  = loops * pipeVelX
         #Get index of first pipe ahead of bird
@@ -181,7 +187,7 @@ def mainGame(player):
                     pygame.quit()
                     sys.exit()
 
-                if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+                #if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
 
                     if player.playery > -2 * IMAGES['player'][0].get_height():
                         player.playerVelY = player.playerFlapAcc
@@ -411,6 +417,7 @@ def getHitmask(image):
     return mask
 
 if __name__ == '__main__':
+
     keepPlaying = True
     while keepPlaying:
         GLOBAL_FIT, keepPlaying = main("empty")
