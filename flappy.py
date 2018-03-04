@@ -72,8 +72,8 @@ def main(NN_weights):
         crashInfo = mainGame(player, NN_weights)
         gameover,fitness = showGameOverScreen(crashInfo, player)
         if gameover:
-            #print("Game is over with fitness")
-            #print(fitness)
+            print("Game is over with fitness")
+            print(fitness)
             return fitness
 
 
@@ -83,7 +83,7 @@ def showWelcomeAnimation(player):
     # iterator used to change playerIndex after every 5th iteration
     loopIter = 0
 
-    messagex = int((SCREENWIDTH - IMAGES['message'].get_width()) / 2)
+    #messagex = int((SCREENWIDTH - IMAGES['message'].get_width()) / 2)
     messagey = int(SCREENHEIGHT * 0.12)
 
     while True:
@@ -271,7 +271,7 @@ def mainGame(player, weights):
 
             SCREEN.blit(IMAGES['base'], (player.basex, BASEY))
 
-        showScore(score)
+       # showScore(score)
 
         visibleRot = player.checkRotationThreshold()
         playerSurface = pygame.transform.rotate(IMAGES['player'][player.playerIndex], visibleRot)

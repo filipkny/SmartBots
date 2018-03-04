@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a6fbe5d8-4d82-4504-87a8-a3fd37af12c0" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/NN_class.py" afterPath="$PROJECT_DIR$/NN_class.py" />
+      <change beforePath="$PROJECT_DIR$/Defaults.py" afterPath="$PROJECT_DIR$/Defaults.py" />
+      <change beforePath="$PROJECT_DIR$/assets/sprites/background-day.png" afterPath="$PROJECT_DIR$/assets/sprites/background-day.png" />
       <change beforePath="$PROJECT_DIR$/flappy.py" afterPath="$PROJECT_DIR$/flappy.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -18,14 +18,12 @@
       <file leaf-file-name="flappy.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/flappy.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="304">
-              <caret line="177" column="0" lean-forward="true" selection-start-line="177" selection-start-column="0" selection-end-line="177" selection-end-column="0" />
+            <state relative-caret-position="164">
+              <caret line="74" column="12" lean-forward="false" selection-start-line="74" selection-start-column="12" selection-end-line="74" selection-end-column="12" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
-                <element signature="e#2316#3879#0" expanded="false" />
                 <element signature="e#9148#10835#0" expanded="false" />
                 <element signature="e#10923#11315#0" expanded="false" />
-                <element signature="e#11344#11829#0" expanded="false" />
                 <element signature="e#13657#13900#0" expanded="false" />
               </folding>
             </state>
@@ -36,7 +34,7 @@
         <entry file="file://$PROJECT_DIR$/AIfunc.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="126">
-              <caret line="6" column="25" lean-forward="true" selection-start-line="6" selection-start-column="25" selection-end-line="6" selection-end-column="25" />
+              <caret line="6" column="72" lean-forward="true" selection-start-line="6" selection-start-column="72" selection-end-line="6" selection-end-column="72" />
               <folding>
                 <element signature="e#0#56#0" expanded="true" />
               </folding>
@@ -77,8 +75,8 @@
       <file leaf-file-name="Defaults.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Defaults.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3">
-              <caret line="62" column="0" lean-forward="true" selection-start-line="62" selection-start-column="0" selection-end-line="62" selection-end-column="0" />
+            <state relative-caret-position="-54">
+              <caret line="66" column="5" lean-forward="false" selection-start-line="66" selection-start-column="5" selection-end-line="66" selection-end-column="5" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -111,6 +109,7 @@
     <findStrings>
       <find>self.pop</find>
       <find>print</find>
+      <find>showSco</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -120,11 +119,11 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/Player.py" />
-        <option value="$PROJECT_DIR$/Defaults.py" />
         <option value="$PROJECT_DIR$/geneticAlg.py" />
         <option value="$PROJECT_DIR$/NN_class.py" />
         <option value="D:/ANACONDA/Files/Lib/site-packages/scipy/optimize/_differentialevolution.py" />
         <option value="$PROJECT_DIR$/AIfunc.py" />
+        <option value="$PROJECT_DIR$/Defaults.py" />
         <option value="$PROJECT_DIR$/flappy.py" />
       </list>
     </option>
@@ -425,13 +424,12 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1098" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18259935" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32470334" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Cargo" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32975295" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26213592" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.42934197" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32901832" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24812031" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -463,10 +461,8 @@
           <caret line="413" column="0" lean-forward="false" selection-start-line="413" selection-start-column="0" selection-end-line="413" selection-end-column="0" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
-            <element signature="e#2316#3879#0" expanded="false" />
             <element signature="e#9148#10835#0" expanded="false" />
             <element signature="e#10923#11315#0" expanded="false" />
-            <element signature="e#11344#11829#0" expanded="false" />
             <element signature="e#13657#13900#0" expanded="false" />
           </folding>
         </state>
@@ -522,10 +518,8 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
-            <element signature="e#2316#3879#0" expanded="false" />
             <element signature="e#9148#10835#0" expanded="false" />
             <element signature="e#10923#11315#0" expanded="false" />
-            <element signature="e#11344#11829#0" expanded="false" />
             <element signature="e#13657#13900#0" expanded="false" />
           </folding>
         </state>
@@ -565,10 +559,8 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
-            <element signature="e#2316#3879#0" expanded="false" />
             <element signature="e#9148#10835#0" expanded="false" />
             <element signature="e#10923#11315#0" expanded="false" />
-            <element signature="e#11344#11829#0" expanded="false" />
             <element signature="e#13657#13900#0" expanded="false" />
           </folding>
         </state>
@@ -608,10 +600,8 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
-            <element signature="e#2316#3879#0" expanded="false" />
             <element signature="e#9148#10835#0" expanded="false" />
             <element signature="e#10923#11315#0" expanded="false" />
-            <element signature="e#11344#11829#0" expanded="false" />
             <element signature="e#13657#13900#0" expanded="false" />
           </folding>
         </state>
@@ -651,10 +641,8 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
-            <element signature="e#2316#3879#0" expanded="false" />
             <element signature="e#9148#10835#0" expanded="false" />
             <element signature="e#10923#11315#0" expanded="false" />
-            <element signature="e#11344#11829#0" expanded="false" />
             <element signature="e#13657#13900#0" expanded="false" />
           </folding>
         </state>
@@ -694,10 +682,8 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
-            <element signature="e#2316#3879#0" expanded="false" />
             <element signature="e#9148#10835#0" expanded="false" />
             <element signature="e#10923#11315#0" expanded="false" />
-            <element signature="e#11344#11829#0" expanded="false" />
             <element signature="e#13657#13900#0" expanded="false" />
           </folding>
         </state>
@@ -737,10 +723,8 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
-            <element signature="e#2316#3879#0" expanded="false" />
             <element signature="e#9148#10835#0" expanded="false" />
             <element signature="e#10923#11315#0" expanded="false" />
-            <element signature="e#11344#11829#0" expanded="false" />
             <element signature="e#13657#13900#0" expanded="false" />
           </folding>
         </state>
@@ -780,10 +764,8 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
-            <element signature="e#2316#3879#0" expanded="false" />
             <element signature="e#9148#10835#0" expanded="false" />
             <element signature="e#10923#11315#0" expanded="false" />
-            <element signature="e#11344#11829#0" expanded="false" />
             <element signature="e#13657#13900#0" expanded="false" />
           </folding>
         </state>
@@ -805,10 +787,8 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
-            <element signature="e#2316#3879#0" expanded="false" />
             <element signature="e#9148#10835#0" expanded="false" />
             <element signature="e#10923#11315#0" expanded="false" />
-            <element signature="e#11344#11829#0" expanded="false" />
             <element signature="e#13657#13900#0" expanded="false" />
           </folding>
         </state>
@@ -840,10 +820,8 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
-            <element signature="e#2316#3879#0" expanded="false" />
             <element signature="e#9148#10835#0" expanded="false" />
             <element signature="e#10923#11315#0" expanded="false" />
-            <element signature="e#11344#11829#0" expanded="false" />
             <element signature="e#13657#13900#0" expanded="false" />
           </folding>
         </state>
@@ -887,16 +865,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Defaults.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3">
-          <caret line="62" column="0" lean-forward="true" selection-start-line="62" selection-start-column="0" selection-end-line="62" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.PyCharmCE2017.3/system/python_stubs/2107957699/pygame/surface.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="197">
@@ -931,16 +899,24 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/flappy.py">
+    <entry file="file://$PROJECT_DIR$/Defaults.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="177" column="0" lean-forward="true" selection-start-line="177" selection-start-column="0" selection-end-line="177" selection-end-column="0" />
+        <state relative-caret-position="-54">
+          <caret line="66" column="5" lean-forward="false" selection-start-line="66" selection-start-column="5" selection-end-line="66" selection-end-column="5" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
-            <element signature="e#2316#3879#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/flappy.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="164">
+          <caret line="74" column="12" lean-forward="false" selection-start-line="74" selection-start-column="12" selection-end-line="74" selection-end-column="12" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
             <element signature="e#9148#10835#0" expanded="false" />
             <element signature="e#10923#11315#0" expanded="false" />
-            <element signature="e#11344#11829#0" expanded="false" />
             <element signature="e#13657#13900#0" expanded="false" />
           </folding>
         </state>
@@ -949,7 +925,7 @@
     <entry file="file://$PROJECT_DIR$/AIfunc.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="126">
-          <caret line="6" column="25" lean-forward="true" selection-start-line="6" selection-start-column="25" selection-end-line="6" selection-end-column="25" />
+          <caret line="6" column="72" lean-forward="true" selection-start-line="6" selection-start-column="72" selection-end-line="6" selection-end-column="72" />
           <folding>
             <element signature="e#0#56#0" expanded="true" />
           </folding>
