@@ -6,7 +6,6 @@ from pygame.locals import *
 from Defaults import *
 import Player as p
 from NN_class import Neural_net
-import numpy as np
 
 try:
     xrange
@@ -15,20 +14,20 @@ except NameError:
 
 VISUALS_SCORE = True
 VISUALS_PLAYER = True
-SOUND_EFFECTS = False
+SOUND_EFFECTS = True
 VISUALS_MAP = True
 MANUAL_PLAY = False
-
+AI_PLAY = True
 GLOBAL_FIT = 0
 
 def main(NN_weights):
-#    print("Im at main and these are my weights")
-   # print(NN_weights)
+   # print("Im at main and these are my weights")
+    #print(NN_weights)
     global SCREEN, FPSCLOCK
-    #pygame.init() #del
+    pygame.init() #del
     FPSCLOCK = pygame.time.Clock()#del
     SCREEN = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))#del
-    #pygame.display.set_caption('Flappy Bird')#del
+    pygame.display.set_caption('Flappy Bird')#del
 
     SOUND, IMAGES = loadPygameDefaults(SOUND_EFFECTS)
 
@@ -72,8 +71,8 @@ def main(NN_weights):
         crashInfo = mainGame(player, NN_weights)
         gameover,fitness = showGameOverScreen(crashInfo, player)
         if gameover:
-            print("Game is over with fitness")
-            print(fitness)
+           # print("Game is over with player dying at " + str(fitness) + "fitness")
+            #print(fitness)
             return fitness
 
 
@@ -83,7 +82,7 @@ def showWelcomeAnimation(player):
     # iterator used to change playerIndex after every 5th iteration
     loopIter = 0
 
-    #messagex = int((SCREENWIDTH - IMAGES['message'].get_width()) / 2)
+    messagex = int((SCREENWIDTH - IMAGES['message'].get_width()) / 2)
     messagey = int(SCREENHEIGHT * 0.12)
 
     while True:
@@ -120,8 +119,8 @@ def showWelcomeAnimation(player):
             SCREEN.blit(IMAGES['message'], (messagex, messagey))
             SCREEN.blit(IMAGES['base'], (player.basex, BASEY))
 
-        #pygame.display.update()
-        #FPSCLOCK.tick(FPS)
+        pygame.display.update()
+        FPSCLOCK.tick(FPS)
 
 
 def mainGame(player, weights):
@@ -157,9 +156,8 @@ def mainGame(player, weights):
     nn = Neural_net(w1, w2)
 
     while True:
-        #print("im playing")
         loops = loops + 1
-
+        player.jumping = False
         #Get index of first pipe ahead of bird
         for i in range(len(lowerPipes)):
             if lowerPipes[i]['x'] > player.playerx:
@@ -167,7 +165,7 @@ def mainGame(player, weights):
                 break
             
         #Compute distance in X between bird and first pipe ahead
-        xdiff = lowerPipes[i]['x'] - player.playerx
+        xdiff = lowerPipes[i]['x'] - player.playerx # TODO shouldnt this be total x distance?
         
         #Compute the distance in Y between bird and the middle of the first pipe crossing
         h_middle = lowerPipes[i]['y'] + 210 #210 because the gap is always 420
@@ -176,7 +174,9 @@ def mainGame(player, weights):
         #Create input vector for the neural network
         X = [xdiff,ydiff]
 
-        fitness = loops * pipeVelX + abs(ydiff)
+        fitness = abs(loops * pipeVelX) - abs(ydiff)/20
+        #print("X fitness coordinate is " + str(abs(loops * pipeVelX)) + " // Y fitness coordinate is " + str(abs(ydiff)))
+        #print(fitness)
         #Forward propagation of NN to get the command for bird
         nn.forwardprop(X)
         y_nn = nn.get_y()
@@ -186,7 +186,6 @@ def mainGame(player, weights):
         
 
         if MANUAL_PLAY:
-            #player.jumping = neuralNetwork.getAction() THIS IS WHERE API DECIDES WHAT TO DO
             for event in pygame.event.get():
                 if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                     pygame.quit()
@@ -202,7 +201,7 @@ def mainGame(player, weights):
 
         else:
             if player.jumping == True:
-                #print("Im jumping at ")
+              #  print("Im jumping at y: ", player.playery)
                # print(fitness)
                 if player.playery > -2 * IMAGES['player'][0].get_height():
                     player.playerVelY = player.playerFlapAcc
@@ -231,6 +230,9 @@ def mainGame(player, weights):
                 if SOUND_EFFECTS:
                     SOUNDS['point'].play()
 
+        if score>=1:
+            print(score)
+            print("Im trained")
 
         # playerIndex basex change
         if (loopIter + 1) % 3 == 0:
@@ -271,15 +273,15 @@ def mainGame(player, weights):
 
             SCREEN.blit(IMAGES['base'], (player.basex, BASEY))
 
-       # showScore(score)
+        showScore(score)
 
         visibleRot = player.checkRotationThreshold()
         playerSurface = pygame.transform.rotate(IMAGES['player'][player.playerIndex], visibleRot)
         if VISUALS_PLAYER:
             SCREEN.blit(playerSurface, (player.playerx, player.playery))
 
-        # pygame.display.update()
-        # FPSCLOCK.tick(FPS)
+        pygame.display.update()
+        FPSCLOCK.tick(FPS)
 
 def showGameOverScreen(crashInfo, player):
 
@@ -423,9 +425,9 @@ def getHitmask(image):
             mask[x].append(bool(image.get_at((x,y))[3]))
     return mask
 
-if __name__ == '__main__':
-
-    keepPlaying = True
-    while keepPlaying:
-        GLOBAL_FIT, keepPlaying = main("empty")
-        #print(GLOBAL_FIT)
+# if __name__ == '__main__':
+#
+#     keepPlaying =
+#     while keepPlaying:
+#         GLOBAL_FIT = main("empty")
+#         #print(GLOBAL_FIT)
