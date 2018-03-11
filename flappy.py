@@ -72,7 +72,7 @@ def main(NN_weights):
         gameover,fitness = showGameOverScreen(crashInfo, player)
         if gameover:
            # print("Game is over with player dying at " + str(fitness) + "fitness")
-            #print(fitness)
+            print(fitness)
             return fitness
 
 
@@ -165,16 +165,17 @@ def mainGame(player, weights):
                 break
             
         #Compute distance in X between bird and first pipe ahead
-        xdiff = lowerPipes[i]['x'] - player.playerx # TODO shouldnt this be total x distance?
+        xdiff = lowerPipes[ind]['x'] - player.playerx # TODO shouldnt this be total x distance?
         
         #Compute the distance in Y between bird and the middle of the first pipe crossing
-        h_middle = lowerPipes[i]['y'] + 210 #210 because the gap is always 420
-        ydiff = player.playery - h_middle
-        
+        h_middle = lowerPipes[ind]['y'] + 210 #210 because the gap is always 420
+        ydiff = player.playery - 200 - h_middle/5
+        #print(abs(player.playery - (lowerPipes[ind]['y'] )))/100.
         #Create input vector for the neural network
         X = [xdiff,ydiff]
-
-        fitness = abs(loops * pipeVelX) - abs(ydiff)/20
+        ydiff = player.playery - lowerPipes[ind]['y'] + 50
+        #print(player.playery - lowerPipes[ind]['y'] + 50)
+        fitness =  -abs(loops*pipeVelX) + abs(ydiff)/5
         #print("X fitness coordinate is " + str(abs(loops * pipeVelX)) + " // Y fitness coordinate is " + str(abs(ydiff)))
         #print(fitness)
         #Forward propagation of NN to get the command for bird
@@ -227,6 +228,7 @@ def mainGame(player, weights):
             pipeMidPos = pipe['x'] + IMAGES['pipe'][0].get_width() / 2
             if pipeMidPos <= playerMidPos < pipeMidPos + 4:
                 score += 1
+                fitness -= 200
                 if SOUND_EFFECTS:
                     SOUNDS['point'].play()
 
