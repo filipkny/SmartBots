@@ -2,7 +2,7 @@ from scipy.optimize import differential_evolution
 from flappy import main
 import numpy as np
 
-bound =1
+bound = 1
 bounds = np.array([(-bound,bound)] * 18)
 def tryout(x):
     return -(x**2)

@@ -1,7 +1,6 @@
 import numpy as np
 
 def sigmoid(x):
-    #print(" im at exponential", x)
     return 1 / (1 + np.exp(-x))
 
 class Neural_net:
@@ -20,11 +19,9 @@ class Neural_net:
         if np.shape(self.w1)[1] != np.shape(X)[0]:
             print('Error: The weight matrix w1 has an incorrect amount of columns. FORWARDPROPAGATION NOT COMPUTED')
             return
+
         X = np.array(X)
         h = sigmoid(np.matmul(self.w1,X))
-
-        #print(np.shape(self.w2))
-        #print(np.shape(h))
 
         if np.shape(self.w2)[1] != np.shape(h)[0]:
             print('Error: The weight matrix w2 has an incorrect amount of columns. FORWARDPROPAGATION NOT COMPUTED')

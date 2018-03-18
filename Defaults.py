@@ -1,5 +1,7 @@
 import pygame
 import sys
+import random
+
 FPS = 20000
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
@@ -67,7 +69,8 @@ def loadPygameDefaults(SOUND_EFFECTS):
    IMAGES['message'] = pygame.image.load('assets/sprites/message2.png').convert_alpha()
     #  base (ground) sprite
    IMAGES['base'] = pygame.image.load('assets/sprites/base2.png').convert_alpha()
-
+   IMAGES['messagex'] = int((SCREENWIDTH - IMAGES['message'].get_width()) / 2)
+   IMAGES['messagey'] = int(SCREENHEIGHT * 0.12)
    if SOUND_EFFECTS:
         # sounds
      if 'win' in sys.platform:
@@ -81,6 +84,52 @@ def loadPygameDefaults(SOUND_EFFECTS):
      SOUNDS['swoosh'] = pygame.mixer.Sound('assets/audio/swoosh' + soundExt)
      SOUNDS['wing'] = pygame.mixer.Sound('assets/audio/wing' + soundExt)
 
-     return SOUNDS,IMAGES
+
+     return SOUNDS,IMAGES, messagex, messagey
    else:
-      return "empty",IMAGES
+     return "empty",IMAGES, messagex, messagey
+
+def loadImages():
+    # select random background sprites
+    randBg = random.randint(0, len(BACKGROUNDS_LIST) - 1)
+    IMAGES['background'] = pygame.image.load(BACKGROUNDS_LIST[randBg]).convert()
+
+    # select random player sprites
+    randPlayer = random.randint(0, len(PLAYERS_LIST) - 1)
+    IMAGES['player'] = (
+        pygame.image.load(PLAYERS_LIST[randPlayer][0]).convert_alpha(),
+        pygame.image.load(PLAYERS_LIST[randPlayer][1]).convert_alpha(),
+        pygame.image.load(PLAYERS_LIST[randPlayer][2]).convert_alpha(),
+    )
+
+    # select random pipe sprites
+    pipeindex = random.randint(0, len(PIPES_LIST) - 1)
+    IMAGES['pipe'] = (
+        pygame.transform.rotate(
+            pygame.image.load(PIPES_LIST[pipeindex]).convert_alpha(), 180),
+        pygame.image.load(PIPES_LIST[pipeindex]).convert_alpha(),
+    )
+
+    # hismask for pipes
+    HITMASKS['pipe'] = (
+        getHitmask(IMAGES['pipe'][0]),
+        getHitmask(IMAGES['pipe'][1]),
+    )
+
+    # hitmask for player
+    HITMASKS['player'] = (
+        getHitmask(IMAGES['player'][0]),
+        getHitmask(IMAGES['player'][1]),
+        getHitmask(IMAGES['player'][2]),
+    )
+
+    return IMAGES,HITMASKS
+
+def getHitmask(image):
+    """returns a hitmask using an image's alpha."""
+    mask = []
+    for x in xrange(image.get_width()):
+        mask.append([])
+        for y in xrange(image.get_height()):
+            mask[x].append(bool(image.get_at((x, y))[3]))
+    return mask

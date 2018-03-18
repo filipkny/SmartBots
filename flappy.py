@@ -20,9 +20,10 @@ MANUAL_PLAY = False
 AI_PLAY = True
 GLOBAL_FIT = 0
 
+
 def main(NN_weights):
-   # print("Im at main and these are my weights")
-    #print(NN_weights)
+    #print("Im at main and these are my weights")
+    print(NN_weights[0])
     global SCREEN, FPSCLOCK
     pygame.init() #del
     FPSCLOCK = pygame.time.Clock()#del
