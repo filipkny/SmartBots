@@ -9,14 +9,14 @@ class Player(object):
         self.playerShmVals = {'val': 0, 'dir': 1}
         self.basex = 0
         self.baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
-        self.playerVelY = -9  # player's velocity along Y, default same as playerFlapped
+        self.playerVelY = -5  # player's velocity along Y, default same as playerFlapped
         self.playerMaxVelY = 10  # max vel along Y, max descend speed
         self.playerMinVelY = -8  # min vel along Y, max ascend speed
         self.playerAccY = 1  # players downward accleration
         self.playerRot = 45  # player's rotation
         self.playerVelRot = 3  # angular speed
         self.playerRotThr = 20  # rotation threshold
-        self.playerFlapAcc = -9  # players speed on flapping
+        self.playerFlapAcc = -9 # players speed on flapping
         self.playerFlapped = False  # True when player flaps
         self.playerHeight = 0
         self.jumping = True

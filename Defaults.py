@@ -2,7 +2,7 @@ import pygame
 import sys
 import random
 
-FPS = 20000
+FPS = 30
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
 
@@ -85,9 +85,9 @@ def loadPygameDefaults(SOUND_EFFECTS):
      SOUNDS['wing'] = pygame.mixer.Sound('assets/audio/wing' + soundExt)
 
 
-     return SOUNDS,IMAGES, messagex, messagey
+     return SOUNDS,IMAGES
    else:
-     return "empty",IMAGES, messagex, messagey
+     return "empty",IMAGES
 
 def loadImages():
     # select random background sprites

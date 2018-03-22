@@ -1,15 +1,16 @@
-import pygame
+
 from pygame.locals import *
 from Defaults import *
 import Player as p
-import NN_class
+from NN_class import Neural_net
 
 class Game(object):
     def __init__(self,  VISUALS_SCORE = True,
                         VISUALS_PLAYER = True,
-                        SOUND_EFFECTS = True,
+                        SOUND_EFFECTS = False,
                         VISUALS_MAP = True,
-                        MANUAL_PLAY = False):
+                        MANUAL_PLAY = True,
+                        RETURN_FIT = False):
 
 
         self.VISUALS_SCORE = VISUALS_SCORE
@@ -17,6 +18,7 @@ class Game(object):
         self.SOUND_EFFECTS = SOUND_EFFECTS
         self.VISUALS_MAP = VISUALS_MAP
         self.MANUAL_PLAY = MANUAL_PLAY
+        self.RETURN_FIT = RETURN_FIT
 
 
     def main(self, nn_weights):
@@ -32,9 +34,8 @@ class Game(object):
             self.showWelcomeAnimation(player)
             crashInfo = self.mainGame(player, nn_weights)
             gameover, fitness = self.showGameOverScreen(crashInfo, player)
-            if gameover:
-                # print("Game is over with player dying at " + str(fitness) + "fitness")
-                print(fitness)
+            if gameover and self.RETURN_FIT:
+                print("Game is over with player dying at " + str(fitness) + "fitness")
                 return fitness
 
     # Initiate all pygame related functions
@@ -55,10 +56,10 @@ class Game(object):
                     # make first flap sound and return values for mainGame
                     if self.SOUND_EFFECTS:
                         self.SOUND['wing'].play()
-                    return
+                    return True
         else:
             if player.keepPlaying:
-                return
+                return True
 
     def showPlayerMapWelcome(self,player):
         if self.VISUALS_PLAYER:
@@ -78,7 +79,9 @@ class Game(object):
         loopIter = 0
         while True:
             # Event loop waiting for action
-            self.pygameEventLoop(player)
+            exitStartScreen = self.pygameEventLoop(player)
+            if exitStartScreen:
+                return
 
             # Adjust playery, playerIndex, basex
             if (loopIter + 1) % 5 == 0:
@@ -193,18 +196,17 @@ class Game(object):
                     return True
         return False
 
-    def checkScore(self, player, score, fitness, upperPipes):
+    def checkScore(self, player, score, upperPipes):
         playerMidPos = player.playerx + IMAGES['player'][0].get_width() / 2
         for pipe in upperPipes:
             pipeMidPos = pipe['x'] + IMAGES['pipe'][0].get_width() / 2
             if pipeMidPos <= playerMidPos < pipeMidPos + 4:
                 score += 1
-                fitness -= 200
                 if self.SOUND_EFFECTS:
                     SOUNDS['point'].play()
-        if score >= 1:
-            print(score)
-            print("Im trained")
+                return score
+            else:
+                return score
 
     def movePipesToLeft(self,upperPipes, lowerPipes, pipeVelX ):
         for uPipe, lPipe in zip(upperPipes, lowerPipes):
@@ -310,6 +312,12 @@ class Game(object):
             self.FPSCLOCK.tick(FPS)
             pygame.display.update()
 
+    def checkRotation(self, player):
+        visibleRot = player.checkRotationThreshold()
+        playerSurface = pygame.transform.rotate(IMAGES['player'][player.playerIndex], visibleRot)
+        if self.VISUALS_PLAYER:
+            self.SCREEN.blit(playerSurface, (player.playerx, player.playery))
+
     def mainGame(self,player, weights):
         loops = 0
         score = 0
@@ -320,10 +328,10 @@ class Game(object):
 
         pipeVelX = -4
 
-        # Init neural network and respective weight vectors
-        w1 = weights[:12]
-        w2 = [weights[12:]]
-        nn = Neural_net(w1, w2)
+        # Initiate neural network and respective weight vectors
+        # w1 = weights[:12]
+        # w2 = [weights[12:]]
+        # nn = Neural_net(w1, w2)
 
         while True:
             loops += 1
@@ -332,32 +340,34 @@ class Game(object):
             ind = self.getFirstPipeIndex(lowerPipes, player)
 
             # Compute distance in X between bird and first pipe ahead
-            xdiff = lowerPipes[ind]['x'] - player.playerx  # TODO shouldnt this be total x distance?
+            xdiff = lowerPipes[ind]['x'] - player.playerx
 
             # Compute the distance in Y between bird and the middle of the first pipe crossing
             h_middle = lowerPipes[ind]['y'] + 210  # 210 because the gap is always 420
             ydiff = player.playery - 200 - h_middle / 5
-            # print(abs(player.playery - (lowerPipes[ind]['y'] )))/100.
+            ydiff = player.playery - lowerPipes[ind]['y'] + 50
+
             # Create input vector for the neural network
             X = [xdiff, ydiff]
-            ydiff = player.playery - lowerPipes[ind]['y'] + 50
-            # print(player.playery - lowerPipes[ind]['y'] + 50)
+
+            # Calculate current fittness
             fitness = -abs(loops * pipeVelX) + abs(ydiff) / 5
-            # print("X fitness coordinate is " + str(abs(loops * pipeVelX)) + " // Y fitness coordinate is " + str(abs(ydiff)))
-            # print(fitness)
+
             # Forward propagation of NN to get the command for bird
-            nn.forwardprop(X)
-            y_nn = nn.get_y()
+            # nn.forwardprop(X)
+            # y_nn = nn.get_y()
 
-            if y_nn > 0.5:
-                player.jumping = True
+            # Make decision
+            # if y_nn > 0.5:
+            #     player.jumping = True
 
+            # Jump or not jump
             if self.MANUAL_PLAY:
                 self.pygameEventLoopAction(player)
             else:
                 self.autoPlay()
 
-            # check for crash here
+            # Check if crash
             crashTest = self.checkCrash({'x': player.playerx, 'y': player.playery, 'index': player.playerIndex},
                                    upperPipes, lowerPipes)
             if crashTest[0]:
@@ -369,8 +379,9 @@ class Game(object):
                     'fitness': fitness,
                 }
 
-            # check for score
-            self.checkScore(player, score, fitness, upperPipes)
+
+            # Check score
+            score = self.checkScore(player, score, upperPipes)
 
             # playerIndex basex change
             if (loopIter + 1) % 3 == 0:
@@ -378,32 +389,25 @@ class Game(object):
 
             loopIter = (loopIter + 1) % 30
 
+            # Update some positions
             player.liveUpdateBasex()
             player.rotatePlayer()
             player.movePlayer()
-
             player.playerHeight = IMAGES['player'][player.playerIndex].get_height()
             player.updateY()
 
-            # move pipes to left
+            # move pipes, add new pipe when first pipe is about to touch left of screen
             self.movePipesToLeft(upperPipes, lowerPipes, pipeVelX)
-
-            # add new pipe when first pipe is about to touch left of screen
             self.addNewPipe(upperPipes, lowerPipes)
-
-            # remove first pipe if its out of the screen
             self.removeFirstPipe(upperPipes, lowerPipes)
 
             self.drawSprites(upperPipes, lowerPipes, player)
-
             self.showScore(score)
-
-            visibleRot = player.checkRotationThreshold()
-            playerSurface = pygame.transform.rotate(IMAGES['player'][player.playerIndex], visibleRot)
-            if self.VISUALS_PLAYER:
-                self.SCREEN.blit(playerSurface, (player.playerx, player.playery))
+            self.checkRotation(player)
 
             pygame.display.update()
             self.FPSCLOCK.tick(FPS)
 
 
+test = Game()
+test.main(["fake","weights"])
