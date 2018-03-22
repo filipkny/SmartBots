@@ -1,13 +1,11 @@
 from scipy.optimize import differential_evolution
-from flappy import main
 import numpy as np
+from game import Game
 
-bound = 1
+bound = 3
 bounds = np.array([(-bound,bound)] * 18)
-def tryout(x):
-    return -(x**2)
-
-result = differential_evolution(main,bounds,maxiter=20000000, disp=True)
+game = Game(MANUAL_PLAY = False)
+result = differential_evolution(game.main ,bounds,maxiter=20000000, disp=True)
 print(result)
 
 # TODO make nicer prints, add options

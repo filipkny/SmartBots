@@ -1,8 +1,7 @@
-
-from pygame.locals import *
 from Defaults import *
 import Player as p
 from NN_class import Neural_net
+import pprint
 
 class Game(object):
     def __init__(self,  VISUALS_SCORE = True,
@@ -10,7 +9,7 @@ class Game(object):
                         SOUND_EFFECTS = False,
                         VISUALS_MAP = True,
                         MANUAL_PLAY = True,
-                        RETURN_FIT = False):
+                        AI_PLAY = True):
 
 
         self.VISUALS_SCORE = VISUALS_SCORE
@@ -18,24 +17,29 @@ class Game(object):
         self.SOUND_EFFECTS = SOUND_EFFECTS
         self.VISUALS_MAP = VISUALS_MAP
         self.MANUAL_PLAY = MANUAL_PLAY
-        self.RETURN_FIT = RETURN_FIT
-
+        self.AI_PLAY = AI_PLAY
+        self.RETURN_FIT = self.AI_PLAY
+        self.runs = 0
+        self.max_fit = 0
+        self.total_fitness = 0
 
     def main(self, nn_weights):
-        # print("Im at main and these are my weights")
-        print(nn_weights[0])
-
+        #print(nn_weights)
         self.FPSCLOCK,self.SCREEN = self.initPygame()
         self.SOUND, self.IMAGES = loadPygameDefaults(self.SOUND_EFFECTS)
         self.IMAGES, self.HITMASKS = loadImages()
 
         while True:
             player = p.Player()
-            self.showWelcomeAnimation(player)
+            if self.MANUAL_PLAY:
+                self.showWelcomeAnimation(player)
             crashInfo = self.mainGame(player, nn_weights)
             gameover, fitness = self.showGameOverScreen(crashInfo, player)
             if gameover and self.RETURN_FIT:
-                print("Game is over with player dying at " + str(fitness) + "fitness")
+                self.total_fitness += fitness
+                print("Game is over with average fitness now of  " + str(self.total_fitness/self.runs))
+
+
                 return fitness
 
     # Initiate all pygame related functions
@@ -49,10 +53,10 @@ class Game(object):
     def pygameEventLoop(self, player):
         if self.MANUAL_PLAY:
             for event in pygame.event.get():
-                if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     pygame.quit()
                     sys.exit()
-                if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+                if event.type == pygame.KEYDOWN and (event.key == pygame.K_SPACE or event.key == pygame.K_UP):
                     # make first flap sound and return values for mainGame
                     if self.SOUND_EFFECTS:
                         self.SOUND['wing'].play()
@@ -87,8 +91,9 @@ class Game(object):
             if (loopIter + 1) % 5 == 0:
                 player.updatePlayerIndex()
 
-
             loopIter = (loopIter + 1) % 30
+
+
             player.updateBasex()
             player.playerShm()
 
@@ -126,11 +131,11 @@ class Game(object):
 
     def pygameEventLoopAction(self, player):
         for event in pygame.event.get():
-            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 pygame.quit()
                 sys.exit()
 
-            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+            if event.type == pygame.KEYDOWN and (event.key == pygame.K_SPACE or event.key == pygame.K_UP):
                 if player.playery > -2 * IMAGES['player'][0].get_height():
                     player.playerVelY = player.playerFlapAcc
                     player.playerFlapped = True
@@ -280,10 +285,10 @@ class Game(object):
         while True:
             if self.MANUAL_PLAY:
                 for event in pygame.event.get():
-                    if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                    if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                         pygame.quit()
                         sys.exit()
-                    if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+                    if event.type == pygame.KEYDOWN and (event.key == pygame.K_SPACE or event.key == pygame.K_UP):
                         if player.playery + player.playerHeight >= BASEY - 1:
                             return True, crashInfo['fitness']
             else:
@@ -319,53 +324,51 @@ class Game(object):
             self.SCREEN.blit(playerSurface, (player.playerx, player.playery))
 
     def mainGame(self,player, weights):
+        self.runs += 1
+        print("This is my run number: " + str(self.runs))
+        # Initalize needed constants
         loops = 0
         score = 0
-        player.playerIndex = 0
         loopIter = 0
-
+        pipeVelX = -4
         upperPipes, lowerPipes = self.createNewPipes()
 
-        pipeVelX = -4
-
         # Initiate neural network and respective weight vectors
-        # w1 = weights[:12]
-        # w2 = [weights[12:]]
-        # nn = Neural_net(w1, w2)
+        if self.AI_PLAY:
+            w1 = weights[:12]
+            w2 = [weights[12:]]
+            nn = Neural_net(w1, w2)
 
         while True:
-            loops += 1
-            player.jumping = False
+            loops += 1                                      # Count loops to check distance
+            player.jumping = False                          # Reset player jump action
+            ind = self.getFirstPipeIndex(lowerPipes, player)# Get the index of the first pipe
 
-            ind = self.getFirstPipeIndex(lowerPipes, player)
 
-            # Compute distance in X between bird and first pipe ahead
+            # Compute distance in X between bird and first pipe ahead,
+            # in Y between bird and the middle of the first pipe crossing
+            # h_middle = lowerPipes[ind]['y'] + 210  # 210 because the gap is always 420
+            # ydiff = player.playery - 200 - h_middle / 5
             xdiff = lowerPipes[ind]['x'] - player.playerx
-
-            # Compute the distance in Y between bird and the middle of the first pipe crossing
-            h_middle = lowerPipes[ind]['y'] + 210  # 210 because the gap is always 420
-            ydiff = player.playery - 200 - h_middle / 5
             ydiff = player.playery - lowerPipes[ind]['y'] + 50
-
-            # Create input vector for the neural network
             X = [xdiff, ydiff]
 
             # Calculate current fittness
-            fitness = -abs(loops * pipeVelX) + abs(ydiff) / 5
+            fitness = abs(loops * pipeVelX) + abs(ydiff) / 5
+            #print("X: " + str(loops * pipeVelX) + "Y: " + str(ydiff) +  " with fitness: " + str(fitness))
 
             # Forward propagation of NN to get the command for bird
-            # nn.forwardprop(X)
-            # y_nn = nn.get_y()
-
-            # Make decision
-            # if y_nn > 0.5:
-            #     player.jumping = True
+            if self.AI_PLAY:
+                nn.forwardprop(X)
+                y_nn = nn.get_y()
+                if y_nn > 0.5:
+                    player.jumping = True
 
             # Jump or not jump
             if self.MANUAL_PLAY:
                 self.pygameEventLoopAction(player)
             else:
-                self.autoPlay()
+                self.autoPlay(player)
 
             # Check if crash
             crashTest = self.checkCrash({'x': player.playerx, 'y': player.playery, 'index': player.playerIndex},
@@ -382,6 +385,8 @@ class Game(object):
 
             # Check score
             score = self.checkScore(player, score, upperPipes)
+            if score > 1:
+                print("Passed one")
 
             # playerIndex basex change
             if (loopIter + 1) % 3 == 0:
@@ -400,7 +405,6 @@ class Game(object):
             self.movePipesToLeft(upperPipes, lowerPipes, pipeVelX)
             self.addNewPipe(upperPipes, lowerPipes)
             self.removeFirstPipe(upperPipes, lowerPipes)
-
             self.drawSprites(upperPipes, lowerPipes, player)
             self.showScore(score)
             self.checkRotation(player)
@@ -409,5 +413,5 @@ class Game(object):
             self.FPSCLOCK.tick(FPS)
 
 
-test = Game()
-test.main(["fake","weights"])
+# test = Game()
+# test.main([1,2])
