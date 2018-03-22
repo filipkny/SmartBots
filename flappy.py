@@ -286,55 +286,6 @@ def mainGame(player, weights):
         pygame.display.update()
         FPSCLOCK.tick(FPS)
 
-def showGameOverScreen(crashInfo, player):
-
-    score = crashInfo['score']
-    player.playerx = SCREENWIDTH * 0.2
-    player.playerAccY = 2
-    player.playerVelRot = 7
-
-    upperPipes, lowerPipes = crashInfo['upperPipes'], crashInfo['lowerPipes']
-
-    # play hit and die sounds
-    if SOUND_EFFECTS:
-        SOUNDS['hit'].play()
-        if not crashInfo['groundCrash']:
-            SOUNDS['die'].play()
-
-    while True:
-        if MANUAL_PLAY:
-            for event in pygame.event.get():
-                if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-                    pygame.quit()
-                    sys.exit()
-                if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
-                    if player.playery + player.playerHeight >= BASEY - 1:
-                        return True, crashInfo['fitness']
-        else:
-            if player.keepPlaying:
-                return True, crashInfo['fitness']
-
-        player.shiftY()
-        player.changeVelocity()
-        player.rotateIfPipeCrash(crashInfo['groundCrash'])
-
-        if VISUALS_MAP:
-            # draw sprites
-            SCREEN.blit(IMAGES['background'], (0,0))
-
-            for uPipe, lPipe in zip(upperPipes, lowerPipes):
-                SCREEN.blit(IMAGES['pipe'][0], (uPipe['x'], uPipe['y']))
-                SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'], lPipe['y']))
-
-            SCREEN.blit(IMAGES['base'], (player.basex, BASEY))
-        showScore(score)
-
-        if VISUALS_PLAYER:
-            playerSurface = pygame.transform.rotate(IMAGES['player'][1], player.playerRot)
-            SCREEN.blit(playerSurface, (player.playerx,player.playery))
-
-        FPSCLOCK.tick(FPS)
-        pygame.display.update()
 
 
 # TODO initialize seed here so that we can keep track of it
@@ -352,72 +303,11 @@ def getRandomPipe():
     ]
 
 
-def showScore(score):
-    """displays score in center of screen"""
-    scoreDigits = [int(x) for x in list(str(score))]
-    totalWidth = 0 # total width of all numbers to be printed
-
-    for digit in scoreDigits:
-        totalWidth += IMAGES['numbers'][digit].get_width()
-
-    Xoffset = (SCREENWIDTH - totalWidth) / 2
-
-    for digit in scoreDigits:
-        if VISUALS_SCORE:
-            SCREEN.blit(IMAGES['numbers'][digit], (Xoffset, SCREENHEIGHT * 0.1))
-        Xoffset += IMAGES['numbers'][digit].get_width()
 
 
-def checkCrash(player, upperPipes, lowerPipes):
-    """returns True if player collders with base or pipes."""
-    pi = player['index']
-    player['w'] = IMAGES['player'][0].get_width()
-    player['h'] = IMAGES['player'][0].get_height()
 
-    # if player crashes into ground
-    if player['y'] + player['h'] >= BASEY - 1:
-        return [True, True]
-    else:
 
-        playerRect = pygame.Rect(player['x'], player['y'],
-                      player['w'], player['h'])
-        pipeW = IMAGES['pipe'][0].get_width()
-        pipeH = IMAGES['pipe'][0].get_height()
 
-        for uPipe, lPipe in zip(upperPipes, lowerPipes):
-            # upper and lower pipe rects
-            uPipeRect = pygame.Rect(uPipe['x'], uPipe['y'], pipeW, pipeH)
-            lPipeRect = pygame.Rect(lPipe['x'], lPipe['y'], pipeW, pipeH)
-
-            # player and upper/lower pipe hitmasks
-            pHitMask = HITMASKS['player'][pi]
-            uHitmask = HITMASKS['pipe'][0]
-            lHitmask = HITMASKS['pipe'][1]
-
-            # if bird collided with upipe or lpipe
-            uCollide = pixelCollision(playerRect, uPipeRect, pHitMask, uHitmask)
-            lCollide = pixelCollision(playerRect, lPipeRect, pHitMask, lHitmask)
-
-            if uCollide or lCollide:
-                return [True, False]
-
-    return [False, False]
-
-def pixelCollision(rect1, rect2, hitmask1, hitmask2):
-    """Checks if two objects collide and not just their rects"""
-    rect = rect1.clip(rect2)
-
-    if rect.width == 0 or rect.height == 0:
-        return False
-
-    x1, y1 = rect.x - rect1.x, rect.y - rect1.y
-    x2, y2 = rect.x - rect2.x, rect.y - rect2.y
-
-    for x in xrange(rect.width):
-        for y in xrange(rect.height):
-            if hitmask1[x1+x][y1+y] and hitmask2[x2+x][y2+y]:
-                return True
-    return False
 
 def getHitmask(image):
     """returns a hitmask using an image's alpha."""
