@@ -2,6 +2,10 @@ from Defaults import *
 import Player as p
 from NN_class import Neural_net
 import pprint
+good_start = [ 0.42808821, -2.20599695, -1.36463635, -2.64356078, -0.3414663 ,
+        1.54710738, -2.42923382,  0.69040533, -1.59005237,  2.78380053,
+       -2.25658969,  0.99114311, -2.482751  , -1.89836315,  0.51885838,
+        0.7911339 ,  0.79377306, -1.64218754]
 
 class Game(object):
     def __init__(self,  VISUALS_SCORE = True,
@@ -24,7 +28,6 @@ class Game(object):
         self.total_fitness = 0
 
     def main(self, nn_weights):
-        #print(nn_weights)
         self.FPSCLOCK,self.SCREEN = self.initPygame()
         self.SOUND, self.IMAGES = loadPygameDefaults(self.SOUND_EFFECTS)
         self.IMAGES, self.HITMASKS = loadImages()
@@ -33,14 +36,17 @@ class Game(object):
             player = p.Player()
             if self.MANUAL_PLAY:
                 self.showWelcomeAnimation(player)
-            crashInfo = self.mainGame(player, nn_weights)
-            gameover, fitness = self.showGameOverScreen(crashInfo, player)
+                crashInfo = self.mainGame(player, nn_weights)
+                gameover, fitness = self.showGameOverScreen(crashInfo, player)
+            else:
+                gameover, fitness = self.mainGame(player, nn_weights)
+
             if gameover and self.RETURN_FIT:
                 self.total_fitness += fitness
                 print("Game is over with average fitness now of  " + str(self.total_fitness/self.runs))
 
 
-                return fitness
+                return 100000/(fitness)
 
     # Initiate all pygame related functions
     def initPygame(self):
@@ -201,12 +207,13 @@ class Game(object):
                     return True
         return False
 
-    def checkScore(self, player, score, upperPipes):
+    def checkScore(self, player, score, fitness, upperPipes):
         playerMidPos = player.playerx + IMAGES['player'][0].get_width() / 2
         for pipe in upperPipes:
             pipeMidPos = pipe['x'] + IMAGES['pipe'][0].get_width() / 2
             if pipeMidPos <= playerMidPos < pipeMidPos + 4:
                 score += 1
+                fitness += 200
                 if self.SOUND_EFFECTS:
                     SOUNDS['point'].play()
                 return score
@@ -335,6 +342,11 @@ class Game(object):
 
         # Initiate neural network and respective weight vectors
         if self.AI_PLAY:
+            # if self.runs < 2:
+            #     weights = [0.42808821, -2.20599695, -1.36463635, -2.64356078, -0.3414663,
+            #                   1.54710738, -2.42923382, 0.69040533, -1.59005237, 2.78380053,
+            #                   -2.25658969, 0.99114311, -2.482751, -1.89836315, 0.51885838,
+            #                   0.7911339, 0.79377306, -1.64218754]
             w1 = weights[:12]
             w2 = [weights[12:]]
             nn = Neural_net(w1, w2)
@@ -373,18 +385,22 @@ class Game(object):
             # Check if crash
             crashTest = self.checkCrash({'x': player.playerx, 'y': player.playery, 'index': player.playerIndex},
                                    upperPipes, lowerPipes)
-            if crashTest[0]:
-                return {
-                    'groundCrash': crashTest[1],
-                    'upperPipes': upperPipes,
-                    'lowerPipes': lowerPipes,
-                    'score': score,
-                    'fitness': fitness,
-                }
+            if self.MANUAL_PLAY:
+                if crashTest[0]:
+                    return {
+                        'groundCrash': crashTest[1],
+                        'upperPipes': upperPipes,
+                        'lowerPipes': lowerPipes,
+                        'score': score,
+                        'fitness': fitness,
+                    }
+            else:
+                if crashTest[0]:
+                    return True, fitness
 
 
             # Check score
-            score = self.checkScore(player, score, upperPipes)
+            score = self.checkScore(player, score, fitness, upperPipes)
             if score > 1:
                 print("Passed one")
 
