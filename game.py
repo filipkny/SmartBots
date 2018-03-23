@@ -365,10 +365,11 @@ class Game(object):
             # h_middle = lowerPipes[ind]['y'] + 210  # 210 because the gap is always 420
             # ydiff = player.playery - 200 - h_middle / 5
             xdiff = lowerPipes[ind]['x'] - player.playerx
-            #middle = lowerPipes[ind]['y'] - PIPEGAPSIZE/2
-            ydiff = player.playery - lowerPipes[ind]['y'] + PIPEGAPSIZE/2
-
+            middle = lowerPipes[ind]['y'] - PIPEGAPSIZE/2
+            ydiff = player.playery - middle - 20
+            #print("The middle is at " + str(middle) + " while the bird is at " + str(player.playery))
             X = [xdiff, ydiff]
+            #print(X)
             # print("lower pipes y is " + str(lowerPipes[ind]['y']))
             #print("y DIFF IS is at " + str(pl))
 
@@ -437,4 +438,4 @@ class Game(object):
 
 
 # test = Game()
-# # test.main([1,2])
+# test.main([1,2])
