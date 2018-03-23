@@ -40,7 +40,7 @@ good_start = [ 0.42808821, -2.20599695, -1.36463635, -2.64356078, -0.3414663 ,
         0.7911339 ,  0.79377306, -1.64218754]
 
 bounds = np.array([(-bound,bound)] * 18)
-game = Game(MANUAL_PLAY = False)
+game = Game(MANUAL_PLAY = False, AI_PLAY=True)
 result = differential_evolution(game.main ,bounds,maxiter=2000, disp=True)
 print("For bound number " + str(bound))
 print(result)

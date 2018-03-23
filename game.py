@@ -13,7 +13,7 @@ class Game(object):
                         SOUND_EFFECTS = False,
                         VISUALS_MAP = True,
                         MANUAL_PLAY = True,
-                        AI_PLAY = True):
+                        AI_PLAY = False):
 
 
         self.VISUALS_SCORE = VISUALS_SCORE
@@ -38,6 +38,7 @@ class Game(object):
                 self.showWelcomeAnimation(player)
                 crashInfo = self.mainGame(player, nn_weights)
                 gameover, fitness = self.showGameOverScreen(crashInfo, player)
+                print(fitness)
             else:
                 gameover, fitness = self.mainGame(player, nn_weights)
 
@@ -48,7 +49,7 @@ class Game(object):
                       " is over with average fitness now of  " + str(int(self.total_fitness/self.runs)) +
                       " and maximum score of " + str(self.max_score))
 
-                return 100/fitness
+                return 1/fitness
 
     # Initiate all pygame related functions
     def initPygame(self):
@@ -215,7 +216,7 @@ class Game(object):
             pipeMidPos = pipe['x'] + IMAGES['pipe'][0].get_width() / 2
             if pipeMidPos <= playerMidPos < pipeMidPos + 4:
                 score += 1
-                fitness += 200
+                #fitness += 200
                 if self.SOUND_EFFECTS:
                     SOUNDS['point'].play()
                 return score
@@ -353,6 +354,7 @@ class Game(object):
             nn = Neural_net(w1, w2)
 
         while True:
+
             loops += 1                                      # Count loops to check distance
             player.jumping = False                          # Reset player jump action
             ind = self.getFirstPipeIndex(lowerPipes, player)# Get the index of the first pipe
@@ -363,11 +365,15 @@ class Game(object):
             # h_middle = lowerPipes[ind]['y'] + 210  # 210 because the gap is always 420
             # ydiff = player.playery - 200 - h_middle / 5
             xdiff = lowerPipes[ind]['x'] - player.playerx
-            ydiff = player.playery - lowerPipes[ind]['y'] + 50
+            #middle = lowerPipes[ind]['y'] - PIPEGAPSIZE/2
+            ydiff = player.playery - lowerPipes[ind]['y'] + PIPEGAPSIZE/2
+
             X = [xdiff, ydiff]
+            # print("lower pipes y is " + str(lowerPipes[ind]['y']))
+            #print("y DIFF IS is at " + str(pl))
 
             # Calculate current fittness
-            fitness = abs(loops * pipeVelX) + abs(ydiff) / 5
+            fitness = abs(loops * pipeVelX) - abs(ydiff)
             #print("X: " + str(loops * pipeVelX) + "Y: " + str(ydiff) +  " with fitness: " + str(fitness))
 
             # Forward propagation of NN to get the command for bird
@@ -431,4 +437,4 @@ class Game(object):
 
 
 # test = Game()
-# test.main([1,2])
+# # test.main([1,2])
