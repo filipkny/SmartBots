@@ -24,7 +24,7 @@ class Game(object):
         self.AI_PLAY = AI_PLAY
         self.RETURN_FIT = self.AI_PLAY
         self.runs = 0
-        self.max_fit = 0
+        self.max_score = 0
         self.total_fitness = 0
 
     def main(self, nn_weights):
@@ -43,10 +43,12 @@ class Game(object):
 
             if gameover and self.RETURN_FIT:
                 self.total_fitness += fitness
-                print("Game is over with average fitness now of  " + str(self.total_fitness/self.runs))
 
+                print("Game number " + str(self.runs) +
+                      " is over with average fitness now of  " + str(int(self.total_fitness/self.runs)) +
+                      " and maximum score of " + str(self.max_score))
 
-                return 100000/(fitness)
+                return 100/fitness
 
     # Initiate all pygame related functions
     def initPygame(self):
@@ -332,7 +334,6 @@ class Game(object):
 
     def mainGame(self,player, weights):
         self.runs += 1
-        print("This is my run number: " + str(self.runs))
         # Initalize needed constants
         loops = 0
         score = 0
@@ -342,11 +343,11 @@ class Game(object):
 
         # Initiate neural network and respective weight vectors
         if self.AI_PLAY:
-            # if self.runs < 2:
-            #     weights = [0.42808821, -2.20599695, -1.36463635, -2.64356078, -0.3414663,
-            #                   1.54710738, -2.42923382, 0.69040533, -1.59005237, 2.78380053,
-            #                   -2.25658969, 0.99114311, -2.482751, -1.89836315, 0.51885838,
-            #                   0.7911339, 0.79377306, -1.64218754]
+            #if self.runs < 2:
+    #         weights = [ 0.36027112, -1.35231036, -1.73766381,  0.18069366, -0.97382481,
+    # 1.30786512,  1.8810826 ,  1.20593766,  0.44995307,  0.60123513,
+    # 1.19421683, -1.49669698, -1.95816254, -0.51513977, -0.57355795,
+   # 1.89628996, -0.58272161, -0.68795376]
             w1 = weights[:12]
             w2 = [weights[12:]]
             nn = Neural_net(w1, w2)
@@ -401,8 +402,8 @@ class Game(object):
 
             # Check score
             score = self.checkScore(player, score, fitness, upperPipes)
-            if score > 1:
-                print("Passed one")
+            if score > self.max_score:
+                self.max_score = score
 
             # playerIndex basex change
             if (loopIter + 1) % 3 == 0:
