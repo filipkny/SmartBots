@@ -8,7 +8,9 @@ good_start = [ 0.42808821, -2.20599695, -1.36463635, -2.64356078, -0.3414663 ,
         0.7911339 ,  0.79377306, -1.64218754]
 
 class Game(object):
-    def __init__(self,  VISUALS_SCORE = True,
+    def __init__(self,  SIMULATION_NUM,
+                        GENETIC_PARAMS,
+                        VISUALS_SCORE = True,
                         VISUALS_PLAYER = True,
                         SOUND_EFFECTS = False,
                         VISUALS_MAP = True,
@@ -25,7 +27,11 @@ class Game(object):
         self.RETURN_FIT = self.AI_PLAY
         self.runs = 0
         self.max_score = 0
+        self.current_score = 0
         self.total_fitness = 0
+        self.simulation_num = SIMULATION_NUM
+        self.genetic_params = GENETIC_PARAMS
+
 
     def main(self, nn_weights):
         self.FPSCLOCK,self.SCREEN = self.initPygame()
@@ -44,12 +50,33 @@ class Game(object):
 
             if gameover and self.RETURN_FIT:
                 self.total_fitness += fitness
+                fit_avg = int(self.total_fitness/self.runs)
+
+                if (self.score > self.max_score):
+                    self.max_score = self.score
+                    with open('FlappyData.txt', 'a') as file:
+                        output = "Simulation number " + str(self.simulation_num) + \
+                                 " with new high score " + str(self.score) + \
+                                 " and bound radius " + str(self.genetic_params["bound_rad"]) + \
+                                 " recombination " + str(self.genetic_params["recombination"]) + \
+                                 " pop size " + str(self.genetic_params["pop_size"]) + \
+                                 " mutation " + str(self.genetic_params["mutation"]) + \
+                                 " gap size " + str(PIPEGAPSIZE) + \
+                                 " and weights "
+                        file.write(output)
+                        self.writeWeights(file, nn_weights)
+                        file.write("\n")
+
 
                 print("Game number " + str(self.runs) +
-                      " is over with average fitness now of  " + str(int(self.total_fitness/self.runs)) +
+                      " is over with average fitness now of  " + str() +
                       " and maximum score of " + str(self.max_score))
 
                 return 1/fitness
+
+    def writeWeights(self, file, weights):
+        for weight in weights:
+            file.write(str(weight))
 
     # Initiate all pygame related functions
     def initPygame(self):
@@ -216,7 +243,7 @@ class Game(object):
             pipeMidPos = pipe['x'] + IMAGES['pipe'][0].get_width() / 2
             if pipeMidPos <= playerMidPos < pipeMidPos + 4:
                 score += 1
-                #fitness += 200
+                fitness += 200
                 if self.SOUND_EFFECTS:
                     SOUNDS['point'].play()
                 return score
@@ -344,11 +371,6 @@ class Game(object):
 
         # Initiate neural network and respective weight vectors
         if self.AI_PLAY:
-            #if self.runs < 2:
-    #         weights = [ 0.36027112, -1.35231036, -1.73766381,  0.18069366, -0.97382481,
-    # 1.30786512,  1.8810826 ,  1.20593766,  0.44995307,  0.60123513,
-    # 1.19421683, -1.49669698, -1.95816254, -0.51513977, -0.57355795,
-   # 1.89628996, -0.58272161, -0.68795376]
             w1 = weights[:12]
             w2 = [weights[12:]]
             nn = Neural_net(w1, w2)
@@ -362,20 +384,14 @@ class Game(object):
 
             # Compute distance in X between bird and first pipe ahead,
             # in Y between bird and the middle of the first pipe crossing
-            # h_middle = lowerPipes[ind]['y'] + 210  # 210 because the gap is always 420
-            # ydiff = player.playery - 200 - h_middle / 5
             xdiff = lowerPipes[ind]['x'] - player.playerx
             middle = lowerPipes[ind]['y'] - PIPEGAPSIZE/2
             ydiff = player.playery - middle - 20
-            #print("The middle is at " + str(middle) + " while the bird is at " + str(player.playery))
+
             X = [xdiff, ydiff]
-            #print(X)
-            # print("lower pipes y is " + str(lowerPipes[ind]['y']))
-            #print("y DIFF IS is at " + str(pl))
 
             # Calculate current fittness
             fitness = abs(loops * pipeVelX) - abs(ydiff)
-            #print("X: " + str(loops * pipeVelX) + "Y: " + str(ydiff) +  " with fitness: " + str(fitness))
 
             # Forward propagation of NN to get the command for bird
             if self.AI_PLAY:
@@ -409,8 +425,8 @@ class Game(object):
 
             # Check score
             score = self.checkScore(player, score, fitness, upperPipes)
-            if score > self.max_score:
-                self.max_score = score
+            self.score = score
+
 
             # playerIndex basex change
             if (loopIter + 1) % 3 == 0:
