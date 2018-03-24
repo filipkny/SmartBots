@@ -8,9 +8,7 @@ good_start = [ 0.42808821, -2.20599695, -1.36463635, -2.64356078, -0.3414663 ,
         0.7911339 ,  0.79377306, -1.64218754]
 
 class Game(object):
-    def __init__(self,  SIMULATION_NUM,
-                        GENETIC_PARAMS,
-                        VISUALS_SCORE = True,
+    def __init__(self,  VISUALS_SCORE = True,
                         VISUALS_PLAYER = True,
                         SOUND_EFFECTS = False,
                         VISUALS_MAP = True,
@@ -29,8 +27,6 @@ class Game(object):
         self.max_score = 0
         self.current_score = 0
         self.total_fitness = 0
-        self.simulation_num = SIMULATION_NUM
-        self.genetic_params = GENETIC_PARAMS
 
 
     def main(self, nn_weights):
@@ -52,17 +48,12 @@ class Game(object):
                 self.total_fitness += fitness
                 fit_avg = int(self.total_fitness/self.runs)
 
-                if (self.score > self.max_score):
-                    self.max_score = self.score
+                if (self.current_score > self.max_score):
+                    self.max_score = self.current_score
                     with open('FlappyData.txt', 'a') as file:
-                        output = "Simulation number " + str(self.simulation_num) + \
-                                 " with new high score " + str(self.score) + \
-                                 " and bound radius " + str(self.genetic_params["bound_rad"]) + \
-                                 " recombination " + str(self.genetic_params["recombination"]) + \
-                                 " pop size " + str(self.genetic_params["pop_size"]) + \
-                                 " mutation " + str(self.genetic_params["mutation"]) + \
-                                 " gap size " + str(PIPEGAPSIZE) + \
-                                 " and weights "
+                        output = "Run number: " + str(self.runs) + \
+                                 " with new high score: " + str(self.current_score) + \
+                                 "and weights "
                         file.write(output)
                         self.writeWeights(file, nn_weights)
                         file.write("\n")
@@ -425,7 +416,7 @@ class Game(object):
 
             # Check score
             score = self.checkScore(player, score, fitness, upperPipes)
-            self.score = score
+            self.current_score = score
 
 
             # playerIndex basex change

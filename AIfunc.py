@@ -1,7 +1,7 @@
 from scipy.optimize import differential_evolution
 import numpy as np
 from game import Game
-
+from Defaults import PIPEGAPSIZE
 # 10k/fit - prob not good
 # 10 and 5 def not working
 # 348 after 5k iters for 2
@@ -42,14 +42,24 @@ good_start = [ 0.42808821, -2.20599695, -1.36463635, -2.64356078, -0.3414663 ,
 
 
 genetic_params = {
-    "recombination" : 0.7,
+    "recombination" : 0.1,
     "pop_size" : 1,
     "mutation" : (0.5,1),
     "bound_rad" : 3
 }
 
 bounds = np.array([(-genetic_params["bound_rad"],genetic_params["bound_rad"])] * 18)
-game = Game(1,genetic_params,MANUAL_PLAY = False, AI_PLAY=True)
+game = Game(MANUAL_PLAY = False, AI_PLAY=True)
+
+with open('FlappyData.txt', 'a') as file:
+    output = "---------- Simulation number " + str(1) + \
+             " with bound radius: " + str(genetic_params["bound_rad"]) + \
+             " recombination: " + str(genetic_params["recombination"]) + \
+             " pop size: " + str(genetic_params["pop_size"]) + \
+             " mutation: " + str(genetic_params["mutation"]) + \
+             " gap size: " + str(PIPEGAPSIZE) + \
+             " ----------\n"
+    file.write(output)
 
 result = differential_evolution(
     game.main,
