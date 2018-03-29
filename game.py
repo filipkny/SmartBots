@@ -1,11 +1,7 @@
 from Defaults import *
 import Player as p
 from NN_class import Neural_net
-import pprint
-good_start = [ 0.42808821, -2.20599695, -1.36463635, -2.64356078, -0.3414663 ,
-        1.54710738, -2.42923382,  0.69040533, -1.59005237,  2.78380053,
-       -2.25658969,  0.99114311, -2.482751  , -1.89836315,  0.51885838,
-        0.7911339 ,  0.79377306, -1.64218754]
+
 
 class Game(object):
     def __init__(self,  VISUALS_SCORE = True,
@@ -13,7 +9,9 @@ class Game(object):
                         SOUND_EFFECTS = False,
                         VISUALS_MAP = True,
                         MANUAL_PLAY = True,
-                        AI_PLAY = False):
+                        AI_PLAY = False,
+                        plotDataFile = "PlotData.txt",
+                        flappyDataFile = "FlappyData.txt"):
 
 
         self.VISUALS_SCORE = VISUALS_SCORE
@@ -27,7 +25,9 @@ class Game(object):
         self.max_score = 0
         self.current_score = 0
         self.total_fitness = 0
-
+        self.acc = []
+        self.plotDataFile = plotDataFile
+        self.flappyDataFile = flappyDataFile
 
     def main(self, nn_weights):
         self.FPSCLOCK,self.SCREEN = self.initPygame()
@@ -46,11 +46,12 @@ class Game(object):
 
             if gameover and self.RETURN_FIT:
                 self.total_fitness += fitness
-                fit_avg = int(self.total_fitness/self.runs)
 
+                avg = self.calculateAverage(self.acc, fitness)
+                megafit = abs(100/(fitness+0.00001))
                 if (self.current_score > self.max_score):
                     self.max_score = self.current_score
-                    with open('FlappyData.txt', 'a') as file:
+                    with open(self.flappyDataFile, 'a') as file:
                         output = "Run number: " + str(self.runs) + \
                                  " with new high score: " + str(self.current_score) + \
                                  "and weights "
@@ -58,16 +59,38 @@ class Game(object):
                         self.writeWeights(file, nn_weights)
                         file.write("\n")
 
+                self.writePlotData()
+                if self.runs % 100 == 0:
+                    print("Game number " + str(self.runs) +
+                          " is over with average fitness now of  " + str(megafit) +
+                          " and maximum score of " + str(self.max_score))
 
-                print("Game number " + str(self.runs) +
-                      " is over with average fitness now of  " + str() +
-                      " and maximum score of " + str(self.max_score))
+                return megafit
 
-                return 1/fitness
+    def stopSimulation(self,nn_weights):
+        with open(self.flappyDataFile, 'a') as file:
+            output = "Run number: " + str(self.runs) + \
+                     " with new high score: " + str(self.current_score) + \
+                     "and weights "
+
+            self.writeWeights(file, nn_weights)
+
+    def calculateAverage(self, array, fit):
+        if len(array) < 10:
+            array.append(fit)
+        else:
+            array.pop()
+            array.append(fit)
+        return sum(array)/10.
+
+    def writePlotData(self):
+        with open(self.plotDataFile, 'a') as file:
+            output = str(self.runs) + "," +  str(self.current_score) +"\n"
+            file.write(output)
 
     def writeWeights(self, file, weights):
         for weight in weights:
-            file.write(str(weight))
+            file.write(str(weight)+",")
 
     # Initiate all pygame related functions
     def initPygame(self):
@@ -352,6 +375,8 @@ class Game(object):
             self.SCREEN.blit(playerSurface, (player.playerx, player.playery))
 
     def mainGame(self,player, weights):
+        #for 125 gap
+        weights = [-0.0594198806233,-0.0928772585862,-0.0634353826706,0.00430478583734,-0.0591339936073,0.0258900974363,0.0116359267351,0.0522146665544,-0.0431392905702,-0.0940026589862,0.0219763526729,-0.0566111423025,-0.0111163846122,0.0725690045081,-0.0251950711604,0.0107707205978,0.0151301321867,-0.0951135849001]
         self.runs += 1
         # Initalize needed constants
         loops = 0
@@ -365,9 +390,9 @@ class Game(object):
             w1 = weights[:12]
             w2 = [weights[12:]]
             nn = Neural_net(w1, w2)
-
-        while True:
-
+        fitness2 = 0
+        gameon = True
+        while gameon:
             loops += 1                                      # Count loops to check distance
             player.jumping = False                          # Reset player jump action
             ind = self.getFirstPipeIndex(lowerPipes, player)# Get the index of the first pipe
@@ -376,14 +401,13 @@ class Game(object):
             # Compute distance in X between bird and first pipe ahead,
             # in Y between bird and the middle of the first pipe crossing
             xdiff = lowerPipes[ind]['x'] - player.playerx
-            middle = lowerPipes[ind]['y'] - PIPEGAPSIZE/2
-            ydiff = player.playery - middle - 20
+            middle = lowerPipes[ind]['y'] - PIPEGAPSIZE/2 - 20
+            ydiff = player.playery - middle
 
             X = [xdiff, ydiff]
 
             # Calculate current fittness
-            fitness = abs(loops * pipeVelX) - abs(ydiff)
-
+            fitness = abs(loops * pipeVelX) - abs(ydiff)*3
             # Forward propagation of NN to get the command for bird
             if self.AI_PLAY:
                 nn.forwardprop(X)
@@ -417,7 +441,9 @@ class Game(object):
             # Check score
             score = self.checkScore(player, score, fitness, upperPipes)
             self.current_score = score
-
+            if score>1000:
+                self.stopSimulation(weights)
+                return True,fitness
 
             # playerIndex basex change
             if (loopIter + 1) % 3 == 0:
@@ -442,7 +468,3 @@ class Game(object):
 
             pygame.display.update()
             self.FPSCLOCK.tick(FPS)
-
-
-# test = Game()
-# test.main([1,2])
