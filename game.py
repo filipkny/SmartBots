@@ -36,6 +36,8 @@ class Game(object):
 
         while True:
             player = p.Player()
+
+            # Full game intro or jump straight into the action
             if self.MANUAL_PLAY:
                 self.showWelcomeAnimation(player)
                 crashInfo = self.mainGame(player, nn_weights)
@@ -46,26 +48,34 @@ class Game(object):
 
             if gameover and self.RETURN_FIT:
                 self.total_fitness += fitness
+                algorithm_fitness = abs(100/(fitness+0.00001))
 
-                avg = self.calculateAverage(self.acc, fitness)
-                megafit = abs(100/(fitness+0.00001))
-                if (self.current_score > self.max_score):
+                # If new high score update and write
+                if self.current_score > self.max_score:
                     self.max_score = self.current_score
-                    with open(self.flappyDataFile, 'a') as file:
-                        output = "Run number: " + str(self.runs) + \
-                                 " with new high score: " + str(self.current_score) + \
-                                 "and weights "
-                        file.write(output)
-                        self.writeWeights(file, nn_weights)
-                        file.write("\n")
+                    self.writeNewHighScore(nn_weights)
 
+                # Write this score
                 self.writePlotData()
-                if self.runs % 100 == 0:
-                    print("Game number " + str(self.runs) +
-                          " is over with average fitness now of  " + str(megafit) +
-                          " and maximum score of " + str(self.max_score))
 
-                return megafit
+                if self.runs % 100 == 0:
+                    self.printProgress(algorithm_fitness)
+
+                return algorithm_fitness
+
+    def printProgress(self,fit):
+        print("Game number " + str(self.runs) +
+              " is over with average fitness now of  " + str(fit) +
+              " and maximum score of " + str(self.max_score))
+
+    def writeNewHighScore(self, weights):
+        with open(self.flappyDataFile, 'a') as file:
+            output = "Run number: " + str(self.runs) + \
+                     " with new high score: " + str(self.current_score) + \
+                     "and weights "
+            file.write(output)
+            self.writeWeights(file, weights)
+            file.write("\n")
 
     def stopSimulation(self,nn_weights):
         with open(self.flappyDataFile, 'a') as file:
@@ -376,8 +386,10 @@ class Game(object):
 
     def mainGame(self,player, weights):
         #for 125 gap
-        weights = [-0.0594198806233,-0.0928772585862,-0.0634353826706,0.00430478583734,-0.0591339936073,0.0258900974363,0.0116359267351,0.0522146665544,-0.0431392905702,-0.0940026589862,0.0219763526729,-0.0566111423025,-0.0111163846122,0.0725690045081,-0.0251950711604,0.0107707205978,0.0151301321867,-0.0951135849001]
+        #weights = [-0.0594198806233,-0.0928772585862,-0.0634353826706,0.00430478583734,-0.0591339936073,0.0258900974363,0.0116359267351,0.0522146665544,-0.0431392905702,-0.0940026589862,0.0219763526729,-0.0566111423025,-0.0111163846122,0.0725690045081,-0.0251950711604,0.0107707205978,0.0151301321867,-0.0951135849001]
+
         self.runs += 1
+
         # Initalize needed constants
         loops = 0
         score = 0
@@ -386,12 +398,15 @@ class Game(object):
         upperPipes, lowerPipes = self.createNewPipes()
 
         # Initiate neural network and respective weight vectors
+        divider = 4
         if self.AI_PLAY:
-            w1 = weights[:12]
-            w2 = [weights[12:]]
-            nn = Neural_net(w1, w2)
+            w1 = weights[:divider]
+            w2 = [weights[divider:]]
+            nn = Neural_net(w1, w2, 2, 2)
+
         fitness2 = 0
         gameon = True
+
         while gameon:
             loops += 1                                      # Count loops to check distance
             player.jumping = False                          # Reset player jump action
@@ -404,10 +419,10 @@ class Game(object):
             middle = lowerPipes[ind]['y'] - PIPEGAPSIZE/2 - 20
             ydiff = player.playery - middle
 
-            X = [xdiff, ydiff]
+            X = [xdiff*5, ydiff*5]
 
             # Calculate current fittness
-            fitness = abs(loops * pipeVelX) - abs(ydiff)*3
+            fitness = abs(loops * pipeVelX) #- abs(ydiff)*3
             # Forward propagation of NN to get the command for bird
             if self.AI_PLAY:
                 nn.forwardprop(X)

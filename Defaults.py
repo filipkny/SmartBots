@@ -2,7 +2,7 @@ import pygame
 import sys
 import random
 
-FPS = 30
+FPS = 3000
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
 

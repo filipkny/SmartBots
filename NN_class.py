@@ -4,8 +4,8 @@ def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
 class Neural_net:
-    def __init__(self,w1,w2):#1 hidden layer NN; w1,w2 - weight matricies, rows indicate the amount of neurons in next layer
-        self.w1 = np.reshape(w1,(6,2)) #numpy array
+    def __init__(self,w1,w2, input = 2, hidden = 6):#1 hidden layer NN; w1,w2 - weight matricies, rows indicate the amount of neurons in next layer
+        self.w1 = np.reshape(w1,(hidden,input)) #numpy array
         self.w2 = np.array(w2)
         self.y = 0
         
@@ -24,6 +24,7 @@ class Neural_net:
         h = sigmoid(np.matmul(self.w1,X))
 
         if np.shape(self.w2)[1] != np.shape(h)[0]:
+            print(str(np.shape(self.w2)[1]) + "=/=" + str(np.shape(h)[0]))
             print('Error: The weight matrix w2 has an incorrect amount of columns. FORWARDPROPAGATION NOT COMPUTED')
             return
         

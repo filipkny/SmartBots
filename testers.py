@@ -7,18 +7,18 @@
 # print(result)
 
 from matplotlib import pyplot as plt
-lines = [line.rstrip('\n') for line in open('PlotDataSmallBound')]
+lines = [line.rstrip('\n') for line in open('newWeightsPlotSmallBound3times4NOy')]
 print(lines[0:5])
 runs = [x.split(",")[0] for x in lines]
 scores = [x.split(",")[1] for x in lines]
 # plt.scatter(runs, scores,marker=2)
 # plt.show()
-#
+
 avg = []
 avgs = []
 for i in range(len(scores)):
     score = float(scores[i])
-    if len(avg) < 20000:
+    if len(avg) < 2000:
         avg.append(score)
     else:
         avg.pop(0)
