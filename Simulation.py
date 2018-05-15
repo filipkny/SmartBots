@@ -46,4 +46,4 @@ def simulate(recomb = 0.3, pop_size = 10, mut = 0.7, bound_rad = 3,num_weights =
         popsize=genetic_params["pop_size"],
         mutation=genetic_params["mutation"])
 
-    return result
+    return result,plotDataFile

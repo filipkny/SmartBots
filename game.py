@@ -412,7 +412,6 @@ class Game(object):
             player.jumping = False                          # Reset player jump action
             ind = self.getFirstPipeIndex(lowerPipes, player)# Get the index of the first pipe
 
-
             # Compute distance in X between bird and first pipe ahead,
             # in Y between bird and the middle of the first pipe crossing
             xdiff = lowerPipes[ind]['x'] - player.playerx
@@ -422,7 +421,7 @@ class Game(object):
             X = [xdiff*5, ydiff*5]
 
             # Calculate current fittness
-            fitness = abs(loops * pipeVelX) #- abs(ydiff)*3
+            fitness = abs(loops * pipeVelX) - abs(ydiff)
             # Forward propagation of NN to get the command for bird
             if self.AI_PLAY:
                 nn.forwardprop(X)
@@ -449,7 +448,7 @@ class Game(object):
                         'fitness': fitness,
                     }
             else:
-                if crashTest[0]:
+                if crashTest[0] or (score > 1000):
                     return True, fitness
 
 
