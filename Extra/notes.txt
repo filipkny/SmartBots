@@ -1,5 +1,0 @@
-For player interface:
-- Seeds for random generation
-- Get rid of initial input to start
-- Encapsulate visuals so that it can run without them
-- Return fitness function
