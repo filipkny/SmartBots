@@ -4,8 +4,6 @@ import os
 import numpy as np
 
 
-
-
 def generateAndSaveGraph(filename):
     lines = [line.rstrip('\n') for line in open(filename)]
 
@@ -32,30 +30,42 @@ def generateAndSaveGraph(filename):
           " | Variance: "  + str(variance) +
           " | Average gradient: " + str(sum(gradient)/len(gradient)))
     plt.title(filename)
+    plt.grid(True)
+    # plt.savefig(filename + ".png")
     plt.show()
-    #plt.savefig(filename + ".png")
-
 
 def fullSimulate():
-    muts = [0.2, 0.7, 1.2, 1.7] #0.2
+    strats = ['best1bin',
+              'best1exp',
+              'rand1exp',
+              'randtobest1exp',
+              'best2exp',
+              'rand2exp',
+              'randtobest1bin',
+              'best2bin',
+              'rand2bin',
+              'rand1bin']
+    muts = [0.25,0.45,0.65] #0.45
     bound_rads = [0.1, 1] #0.1
     pops = [3, 10, 15] #3
-    recombs = [0.2, 0.5, 0.8] #0.5
-
+    recombs = [0.2, 0.4, 0.6, 0.8] #1
+    big_recombs = [1, 1.25, 1.5, 1.75]
     # for recomb in recombs:
     #     for mut in muts:
     #         for bound_rad in bound_rads:
     #             for pop in pops:
 
-    result, filename = simulate(pop_size=3, mut=0.2, bound_rad=0.1,iters=1000, recomb=0.5,FlappyDataFile="SingleSequenceRunData1",plotDataFile="SinglePlotData")
+    # for strat in strats:
+    result, filename = simulate(strat='best1bin', pop_size=50, mut=0.45, bound_rad=0.1,iters=1000, recomb=0.6,FlappyDataFile="win3",plotDataFile="win3")
+    print("done")
     generateAndSaveGraph(filename)
 
 
-   
 
 
-fullSimulate()
 
+# fullSimulate()
+generateAndSaveGraph("data/win3rec0.6pop50mut0.45brad0.1wnum6stratbest1bin")
 #  filename = 'data/' + \
    # "rec" + str(recomb) + \
    # "pop" + str(pop) + \

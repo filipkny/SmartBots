@@ -1,7 +1,8 @@
 from Defaults import *
 import Player as p
 from NN_class import Neural_net
-
+import pygame
+import time
 
 class Game(object):
     def __init__(self,  VISUALS_SCORE = True,
@@ -46,9 +47,9 @@ class Game(object):
             else:
                 gameover, fitness = self.mainGame(player, nn_weights)
 
-            if gameover and self.RETURN_FIT:
+            if gameover:
                 self.total_fitness += fitness
-                algorithm_fitness = abs(100/(fitness+0.00001))
+                algorithm_fitness = abs(100000/(fitness+0.00001))
 
                 # If new high score update and write
                 if self.current_score > self.max_score:
@@ -57,7 +58,6 @@ class Game(object):
 
                 # Write this score
                 self.writePlotData()
-
                 if self.runs % 100 == 0:
                     self.printProgress(algorithm_fitness)
 
@@ -225,7 +225,6 @@ class Game(object):
                                      player['w'], player['h'])
             pipeW = IMAGES['pipe'][0].get_width()
             pipeH = IMAGES['pipe'][0].get_height()
-
             for uPipe, lPipe in zip(upperPipes, lowerPipes):
                 # upper and lower pipe rects
                 uPipeRect = pygame.Rect(uPipe['x'], uPipe['y'], pipeW, pipeH)
@@ -240,7 +239,7 @@ class Game(object):
                 uCollide = self.pixelCollision(playerRect, uPipeRect, pHitMask, uHitmask)
                 lCollide = self.pixelCollision(playerRect, lPipeRect, pHitMask, lHitmask)
 
-                if uCollide or lCollide:
+                if lCollide or uCollide:
                     return [True, False]
 
         return [False, False]
@@ -329,6 +328,7 @@ class Game(object):
             {'x': pipeX, 'y': gapY + PIPEGAPSIZE},  # lower pipe
         ]
 
+
     def showGameOverScreen(self, crashInfo, player):
         score = crashInfo['score']
         player.playerx = SCREENWIDTH * 0.2
@@ -408,6 +408,11 @@ class Game(object):
         gameon = True
 
         while gameon:
+            # This is necessary for pygame not to crash
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit(0)
+
             loops += 1                                      # Count loops to check distance
             player.jumping = False                          # Reset player jump action
             ind = self.getFirstPipeIndex(lowerPipes, player)# Get the index of the first pipe
@@ -418,10 +423,10 @@ class Game(object):
             middle = lowerPipes[ind]['y'] - PIPEGAPSIZE/2 - 20
             ydiff = player.playery - middle
 
-            X = [xdiff*5, ydiff*5]
+            X = [xdiff, ydiff]
 
             # Calculate current fittness
-            fitness = abs(loops * pipeVelX) - abs(ydiff)
+            fitness = abs(loops * pipeVelX)# - abs(ydiff)
             # Forward propagation of NN to get the command for bird
             if self.AI_PLAY:
                 nn.forwardprop(X)
@@ -448,7 +453,7 @@ class Game(object):
                         'fitness': fitness,
                     }
             else:
-                if crashTest[0] or (score > 1000):
+                if crashTest[0]:
                     return True, fitness
 
 
@@ -480,5 +485,25 @@ class Game(object):
             self.showScore(score)
             self.checkRotation(player)
 
+            # Makes hitspots black
+            # pipeW = IMAGES['pipe'][0].get_width()
+            # pipeH = IMAGES['pipe'][0].get_height()
+            # uPipeRect = pygame.Rect(upperPipes[0]['x'], upperPipes[0]['y'], pipeW, pipeH)
+            # lPipeRect = pygame.Rect(lowerPipes[0]['x'], lowerPipes[0]['y'], pipeW, pipeH)
+            # playerRect = pygame.Rect(player.playerx,
+            #                          player.playery,
+            #                          IMAGES['player'][0].get_width(),
+            #                          IMAGES['player'][0].get_height())
+            # pygame.draw.rect(self.SCREEN, (0, 0, 0), playerRect, 0)
+            # pygame.draw.rect(self.SCREEN,(0,0,0),uPipeRect,0)
+            # pygame.draw.rect(self.SCREEN,(0,0,0),lPipeRect,0)
+
             pygame.display.update()
             self.FPSCLOCK.tick(FPS)
+
+#
+# game = Game(MANUAL_PLAY=False, AI_PLAY=True, plotDataFile="nan", flappyDataFile="nan")
+# while True:
+#     nn_weights = [0.0110004575674, -0.0465292480022, -0.0152230882772, 0.00718892342379, -0.0409277586902,
+#                   0.028221629367]
+#     game.main(nn_weights)

@@ -1,24 +1,30 @@
-import pylearn2
+import numpy as np
 
-class GeneticAlgorithm(object):
-    def __init__(self, max_units, top_units):
-        self.max_units = max_units # max number of units in population
-        self.top_units = top_units # number of top units (winners) used for evolving populatio
-        self.population = []
-        self.scale_factor = 200
-        self.iteration = 1
-        self.mutationRate = 1
-        self.best_population = 1
-        self.best_fitness = 1
-        self.best_score = 0
-
-    def reset(self):
-        self.iteration = 1
-        self.mutationRate = 1
-        self.best_population = 1
-        self.best_fitness = 1
-        self.best_score = 0
-
-    def createNewPopulation(self):
-        for i in range(self.max_units):
-            pass
+def de(fobj, bounds, mut=0.8, crossp=0.7, popsize=20, its=1000):
+    dimensions = len(bounds)
+    pop = np.random.rand(popsize, dimensions)
+    min_b, max_b = np.asarray(bounds).T
+    diff = np.fabs(min_b - max_b)
+    pop_denorm = min_b + pop * diff
+    fitness = np.asarray([fobj(ind) for ind in pop_denorm])
+    best_idx = np.argmin(fitness)
+    best = pop_denorm[best_idx]
+    for i in range(its):
+        print("Iter num: " + str(i) + "with best: " + str(best  ))
+        for j in range(popsize):
+            idxs = [idx for idx in range(popsize) if idx != j]
+            a, b, c = pop[np.random.choice(idxs, 3, replace = False)]
+            mutant = np.clip(a + mut * (b - c), 0, 1)
+            cross_points = np.random.rand(dimensions) < crossp
+            if not np.any(cross_points):
+                cross_points[np.random.randint(0, dimensions)] = True
+            trial = np.where(cross_points, mutant, pop[j])
+            trial_denorm = min_b + trial * diff
+            f = fobj(trial_denorm)
+            if f < fitness[j]:
+                fitness[j] = f
+                pop[j] = trial
+                if f < fitness[best_idx]:
+                    best_idx = j
+                    best = trial_denorm
+        yield best, fitness[best_idx]

@@ -2,16 +2,17 @@ from scipy.optimize import differential_evolution
 import numpy as np
 from game import Game
 from Defaults import PIPEGAPSIZE
+from geneticAlg import de
 
+def simulate(strat = None, recomb = 0.3, pop_size = 10, mut = 0.7, bound_rad = 3,num_weights = 6, iters=200, plotDataFile ="PlotData.txt" , FlappyDataFile = 'FlappyData.txt', dataFolder='data/'):
 
-def simulate(recomb = 0.3, pop_size = 10, mut = 0.7, bound_rad = 3,num_weights = 6, iters=200, plotDataFile ="PlotData.txt" , FlappyDataFile = 'FlappyData.txt', dataFolder='data/'):
-
-    plotDataFile = dataFolder + \
+    plotDataFile =  dataFolder + plotDataFile + \
                    "rec" + str(recomb) + \
                    "pop" + str(pop_size) + \
                    "mut" + str(mut) + \
                    "brad" + str(bound_rad) + \
-                   "wnum" + str(num_weights)
+                   "wnum" + str(num_weights) + \
+                   "strat" + str(strat)
 
     FlappyDataFile = dataFolder + FlappyDataFile
 
@@ -22,7 +23,7 @@ def simulate(recomb = 0.3, pop_size = 10, mut = 0.7, bound_rad = 3,num_weights =
         "bound_rad": bound_rad#3
     }
 
-    bounds = np.array([(-genetic_params["bound_rad"], genetic_params["bound_rad"])] * num_weights)
+    bounds = [(-genetic_params["bound_rad"], genetic_params["bound_rad"])] * num_weights
 
     game = Game(MANUAL_PLAY=False, AI_PLAY=True, plotDataFile = plotDataFile, flappyDataFile=FlappyDataFile)
 
@@ -34,6 +35,7 @@ def simulate(recomb = 0.3, pop_size = 10, mut = 0.7, bound_rad = 3,num_weights =
                  " mutation: " + str(genetic_params["mutation"]) + \
                  " gap size: " + str(PIPEGAPSIZE) + \
                  " num weights: " + str(num_weights) + \
+                 " strat: " + str(strat) + \
                  " ----------\n"
         file.write(output)
 
@@ -44,6 +46,13 @@ def simulate(recomb = 0.3, pop_size = 10, mut = 0.7, bound_rad = 3,num_weights =
         disp=True,
         recombination=genetic_params["recombination"],
         popsize=genetic_params["pop_size"],
-        mutation=genetic_params["mutation"])
-
+        mutation=genetic_params["mutation"],
+        strategy=strat)
+    # print("Starting de")
+    # result = list(de(
+    #     game.main,
+    #     bounds,
+    # ))
+    print(result)
+    print("Done with de")
     return result,plotDataFile
