@@ -1,5 +1,7 @@
 from itertools import cycle
 from Defaults import *
+
+
 class Player(object):
     def __init__(self):
         self.playerIndex = 0 # index of player to blit on screen

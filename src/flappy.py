@@ -1,3 +1,13 @@
+##################################################
+#           ORIGINAL FLAPPY BIRD CODE            #
+#                                                #
+#                                                #
+#                                                #
+#           NOT USED ANYMORE                     #
+#                                                #
+#                                                #
+##################################################
+
 import random
 import sys
 
@@ -5,7 +15,7 @@ import pygame
 from pygame.locals import *
 from Defaults import *
 import Player as p
-from NN_class import Neural_net
+from NeuralNetwork import Neural_net
 
 try:
     xrange

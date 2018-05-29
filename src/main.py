@@ -31,7 +31,7 @@ def generateAndSaveGraph(filename):
           " | Average gradient: " + str(sum(gradient)/len(gradient)))
     plt.title(filename)
     plt.grid(True)
-    # plt.savefig(filename + ".png")
+    plt.savefig(filename + ".png")
     plt.show()
 
 def fullSimulate():
@@ -50,12 +50,6 @@ def fullSimulate():
     pops = [3, 10, 15] #3
     recombs = [0.2, 0.4, 0.6, 0.8] #1
     big_recombs = [1, 1.25, 1.5, 1.75]
-    # for recomb in recombs:
-    #     for mut in muts:
-    #         for bound_rad in bound_rads:
-    #             for pop in pops:
-
-    # for strat in strats:
     result, filename = simulate(strat='best1bin', pop_size=50, mut=0.45, bound_rad=0.1,iters=1000, recomb=0.6,FlappyDataFile="win3",plotDataFile="win3")
     print("done")
     generateAndSaveGraph(filename)
@@ -63,12 +57,5 @@ def fullSimulate():
 
 
 
-
-# fullSimulate()
-generateAndSaveGraph("data/win3rec0.6pop50mut0.45brad0.1wnum6stratbest1bin")
-#  filename = 'data/' + \
-   # "rec" + str(recomb) + \
-   # "pop" + str(pop) + \
-   # "mut" + str(mut) + \
-   # "brad" + str(bound_rad) + \
-   # "wnum" + str(6)
+if __name__ == '__main__':
+    fullSimulate()

@@ -1,6 +1,15 @@
+
+##################################################
+#           NEW FLAPPY BIRD CODE                 #
+#                                                #
+#                                                #
+#                                                #
+##################################################
+
+
 from Defaults import *
 import Player as p
-from NN_class import Neural_net
+from NeuralNetwork import Neural_net
 import pygame
 import time
 

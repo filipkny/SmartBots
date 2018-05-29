@@ -1,10 +1,8 @@
 from scipy.optimize import differential_evolution
-import numpy as np
-from game import Game
+from Game import Game
 from Defaults import PIPEGAPSIZE
-from geneticAlg import de
 
-def simulate(strat = None, recomb = 0.3, pop_size = 10, mut = 0.7, bound_rad = 3,num_weights = 6, iters=200, plotDataFile ="PlotData.txt" , FlappyDataFile = 'FlappyData.txt', dataFolder='data/'):
+def simulate(strat = None, recomb = 0.3, pop_size = 10, mut = 0.7, bound_rad = 3,num_weights = 6, iters=200, plotDataFile ="PlotData.txt" , FlappyDataFile = 'FlappyData.txt', dataFolder='../data/'):
 
     plotDataFile =  dataFolder + plotDataFile + \
                    "rec" + str(recomb) + \
@@ -48,11 +46,7 @@ def simulate(strat = None, recomb = 0.3, pop_size = 10, mut = 0.7, bound_rad = 3
         popsize=genetic_params["pop_size"],
         mutation=genetic_params["mutation"],
         strategy=strat)
-    # print("Starting de")
-    # result = list(de(
-    #     game.main,
-    #     bounds,
-    # ))
+
     print(result)
     print("Done with de")
     return result,plotDataFile
