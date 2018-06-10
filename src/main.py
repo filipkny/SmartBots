@@ -45,12 +45,14 @@ def fullSimulate():
               'best2bin',
               'rand2bin',
               'rand1bin']
+
     muts = [0.25,0.45,0.65] #0.45
     bound_rads = [0.1, 1] #0.1
     pops = [3, 10, 15] #3
     recombs = [0.2, 0.4, 0.6, 0.8] #1
     big_recombs = [1, 1.25, 1.5, 1.75]
-    result, filename = simulate(strat='best1bin', pop_size=50, mut=0.45, bound_rad=0.1,iters=1000, recomb=0.6,FlappyDataFile="win3",plotDataFile="win3")
+
+    result, filename = simulate(strat='best1bin', pop_size=5, mut=0.45, bound_rad=0.1,iters=1000, recomb=0.6,FlappyDataFile="flappyRunData",plotDataFile="flappyPlotData")
     print("done")
     generateAndSaveGraph(filename)
 
